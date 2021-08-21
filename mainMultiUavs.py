@@ -72,7 +72,7 @@ for robot in multirobots.robots.keys():
     dataDict[robot] = (full_state[::sample], reference_state[::sample])
 
 multirobots.setData(dataDict)
-animateAndSave = False
+animateAndSave = True
 if animateAndSave:
     videoname = 'UpsideDownTeam__.mp4'
     show = False
