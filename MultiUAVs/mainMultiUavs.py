@@ -1,3 +1,11 @@
+import os
+import sys 
+path = os.getcwd()
+sys.path.insert(0, path)
+sys.path.insert(0, path+'/SingleUAV')
+sys.path.insert(0, path+'/ControllerUAV')
+sys.path.insert(0, path+'/Utilities')
+sys.path.insert(0, path+'/UAV_Trajectory')
 import uav
 import controller
 import numpy as np
@@ -72,9 +80,10 @@ for robot in multirobots.robots.keys():
     dataDict[robot] = (full_state[::sample], reference_state[::sample])
 
 multirobots.setData(dataDict)
-animateAndSave = True
+
+animateAndSave = False
 if animateAndSave:
-    videoname = 'UpsideDownTeam__.mp4'
+    videoname = path+'/Videos/Trial_video2.mp4'
     show = False
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]

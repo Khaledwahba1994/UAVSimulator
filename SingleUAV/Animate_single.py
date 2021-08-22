@@ -35,7 +35,7 @@ class PlotandAnimate:
 
     def startAnimation(self,videoname,show,dt):
         self.ani = animation.FuncAnimation(self.fig, self.animate, frames=len(self.full_state), interval=dt*1000,blit=True)
-        # self.ani.save(videoname)
+        self.ani.save(videoname)
         if show:   
             plt.show()
         

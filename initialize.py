@@ -6,7 +6,7 @@ from utils import Rx, Ry, Rz
 dt = 0.01 #time step
 g = 9.81 #gravitational constant [m/s^2]
 t0 = 0
-tf = 8
+tf = 1
 
 # Initialize the time t vector given:
 # Initial time: t0

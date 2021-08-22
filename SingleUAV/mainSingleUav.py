@@ -1,3 +1,11 @@
+import os
+import sys 
+path = os.getcwd()
+sys.path.insert(0, path)
+sys.path.insert(0, path+'/Controller')
+sys.path.insert(0, path+'/utilities/')
+sys.path.insert(0, path+'/UAV_Trajectory/')
+sys.path.insert(0, path+'/Videos/')
 import uav
 import controller
 import numpy as np
@@ -51,12 +59,14 @@ sample     = 10
 
 fig     = plt.figure(figsize=(10,10))
 ax      = fig.add_subplot(autoscale_on=True,projection="3d")
-animate = PlotandAnimate(uavModel, full_state[::sample,:], ref_state[::sample,:])
-
-videoname  = 'CircularTraj1.mp4' 
-t_sampled  = t[::sample]
-dt_sampled = t_sampled[1] - t_sampled[0]
-now = time.time()
-animate.startAnimation(videoname,False,dt_sampled)
-end = time.time()
-print("Run time:  {:.3f}s".format((end - now)))
+animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::sample,:])
+animateAndSave = True
+if animateAndSave:
+    videoname  = path+'/Videos/Trial_save.mp4' 
+    t_sampled  = t[::sample]
+    dt_sampled = t_sampled[1] - t_sampled[0]
+    show       = False
+    now = time.time()
+    startanimation = animate.startAnimation(videoname,show,dt_sampled)
+    end = time.time()
+    print("Run time:  {:.3f}s".format((end - now)))
