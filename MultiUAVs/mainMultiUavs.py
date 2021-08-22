@@ -14,30 +14,19 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d 
 import matplotlib.animation as animation
 from UavTrajectory import DesiredTrajInfinity, DesiredTrajHelix, Hover
-from initialize import initState, t0, tf, dt, t
+from initializeMultiUavs import initStates, teamNum, t0, tf, dt, t
 from Animate_single import PlotandAnimate
 import time
 import multiUavs
 
-teamNum = 4
-
-initState0 = initState.copy()
-initState1 = initState.copy() 
-initState2 = initState.copy()
-initState3 = initState.copy()
-
-initState1[0:2] = np.array([-1,1])
-initState2[0:2] = np.array([-1,-1])
-initState3[0:2] = np.array([1,-1])
-
 k = [10,5,70,10]
-# Initialize a dictionary with keys as robot number and values as Initial States
-initStates   = {'0':initState0, '1':initState1, '2':initState2, '3':initState3}
+# Initialize a 'multirobots' object given initial states and number of vehicles
 multirobots  = multiUavs.MultiRobots(teamNum, dt, initStates)
-refTraj      = {}
+refTraj      = {}  # Each loop reference traj
 fullstateSt  = {}  # Full states stack
 refstateSt   = {}  # Reference states stack
 
+# Initialize both stacks 
 for robot in multirobots.robots.keys():
     fullstateSt[robot] = np.zeros((1,13))
     refstateSt[robot] = np.zeros((1,13))
@@ -62,7 +51,8 @@ for i in range(0,len(t)):
         currRef[0,3:6]  = refTraj[robot][1][3:6]
         currRef[0,6:10] =  qref
         refstateSt[robot]  = np.concatenate((refstateSt[robot], currRef.reshape(1,13)))
-   
+
+# Remove the first row of zeros used in initialization step   
 for robot in multirobots.robots.keys():
     fullstateSt[robot] = np.delete(fullstateSt[robot], 0, 0)
     refstateSt[robot]  = np.delete(refstateSt[robot], 0, 0)      
@@ -81,12 +71,13 @@ for robot in multirobots.robots.keys():
 
 multirobots.setData(dataDict)
 
-animateAndSave = False
+animateAndSave = True
 if animateAndSave:
-    videoname = path+'/Videos/Trial_video2.mp4'
+    videoname = path+'/Videos/UpsideDownTeam.gif'
     show = False
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
+    print("Converting Animation to Video. \nPlease wait...")
     now = time.time()
     multirobots.startAnimation(fig, ax, videoname, show, dt_sampled)
     end = time.time()

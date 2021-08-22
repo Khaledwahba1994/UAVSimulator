@@ -18,7 +18,7 @@ class PlotandAnimate:
         self.fig = fig#plt.figure(figsize=(10,10))
         self.ax  = ax#self.fig.add_subplot(autoscale_on=True,projection="3d")
         # self.ax.view_init(25, 35)
-        self.ax.view_init(90, 0)
+        self.ax.view_init(25, 35)
         # Create the lines and vectors to draw body and desired frames
         self.line, = self.ax.plot(self.full_state[0,0:1], self.full_state[1,0:1], self.full_state[2,0:1], 'b--', lw=1)
         self.vec1  = self.ax.quiver([],[],[],[],[],[])
@@ -28,8 +28,8 @@ class PlotandAnimate:
         self.vec2d = self.ax.quiver([],[],[],[],[],[])
         self.vec3d = self.ax.quiver([],[],[],[],[],[])
         #Create the arms of the quadrotor in the body frame
-        self.armb1  = np.array([[self.uavModel.d*10**(2)*np.cos(np.pi/4)], [self.uavModel.d*10**(2)*np.sin(np.pi/4)] ,[0]])
-        self._armb1 = np.array([[-self.uavModel.d*10**(2)*np.cos(np.pi/4)], [-self.uavModel.d*10**(2)*np.sin(np.pi/4)] ,[0]])
+        self.armb1  = np.array([[self.uavModel.d*10**(2)*np.cos(0)], [self.uavModel.d*10**(2)*np.sin(0)] ,[0]])
+        self._armb1 = np.array([[-self.uavModel.d*10**(2)*np.cos(0)], [-self.uavModel.d*10**(2)*np.sin(0)] ,[0]])
         self.armb2  = Rz(np.pi/2) @ (self.armb1.reshape(3,))
         self._armb2 = Rz(np.pi/2) @ (self._armb1.reshape(3,))
 

@@ -2,10 +2,10 @@ import os
 import sys 
 path = os.getcwd()
 sys.path.insert(0, path)
-sys.path.insert(0, path+'/Controller')
-sys.path.insert(0, path+'/utilities/')
+sys.path.insert(0, path+'/ControllerUAV')
+sys.path.insert(0, path+'/Utilities/')
 sys.path.insert(0, path+'/UAV_Trajectory/')
-sys.path.insert(0, path+'/Videos/')
+
 import uav
 import controller
 import numpy as np
@@ -30,11 +30,7 @@ traj_choice = 1
 for i in range(0,len(t)):
 # Generate the reference flat outputs trajectory for 3 different trajectories
     if traj_choice == 0: RefTraj, RefTwist = DesiredTrajInfinity(t[i])
-    elif traj_choice == 1:
-        if t[i] <= 1.5:
-            p = [0,0,2,0]
-            RefTraj, RefTwist = Hover(p)
-        else: RefTraj, RefTwist = DesiredTrajHelix(t[i],initState[0],initState[1],initState[2])
+    elif traj_choice == 1:  RefTraj, RefTwist = DesiredTrajHelix(t[i],initState[0],initState[1],initState[2])
     else:
         if t[i] <= 1:
             p = [0,0,1,0]
@@ -62,10 +58,11 @@ ax      = fig.add_subplot(autoscale_on=True,projection="3d")
 animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::sample,:])
 animateAndSave = True
 if animateAndSave:
-    videoname  = path+'/Videos/Trial_save.mp4' 
+    videoname  = path+'/Videos/CircularTraj.gif' 
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
     show       = False
+    print("Converting Animation to Video. \nPlease wait...")
     now = time.time()
     startanimation = animate.startAnimation(videoname,show,dt_sampled)
     end = time.time()

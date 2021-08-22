@@ -11,12 +11,12 @@ def DesiredTrajInfinity(t):
     desiredFlatOutputs[3] = 0 # np.pi * np.sin(wt)
     return desiredFlatOutputs, desiredTwist
 
-def DesiredTrajHelix(t, xinit, yinit,zinit):
+def DesiredTrajHelix(t, xinit, yinit, zinit):
     desiredFlatOutputs = np.zeros((4,))
     desiredTwist       = np.zeros((6,))
-    desiredFlatOutputs[0] = 0.1 * np.cos((t)) + (xinit - 0.1)
-    desiredFlatOutputs[1] = 0.1 * np.sin((t)) + yinit
-    desiredFlatOutputs[2] = zinit#1 + (t/5)
+    desiredFlatOutputs[0] = 1 * np.cos((t)) 
+    desiredFlatOutputs[1] = 1 * np.sin((t)) 
+    desiredFlatOutputs[2] = 1#1 + (t/5)
     desiredFlatOutputs[3] = 0
     return desiredFlatOutputs, desiredTwist
 
