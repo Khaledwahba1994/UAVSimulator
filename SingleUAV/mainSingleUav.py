@@ -5,7 +5,6 @@ sys.path.insert(0, path)
 sys.path.insert(0, path+'/ControllerUAV')
 sys.path.insert(0, path+'/Utilities/')
 sys.path.insert(0, path+'/UAV_Trajectory/')
-
 import uav
 import controller
 import numpy as np
@@ -17,6 +16,7 @@ from UavTrajectory import DesiredTrajInfinity, DesiredTrajHelix, Hover
 from initialize import initState, t0, tf, dt, t
 from Animate_single import PlotandAnimate
 import time
+
 # Initialize UAV object with a given initState and a step time dt
 uavModel = uav.UavModel(dt, initState)
 # Given the controller gains, initialize a controller object
@@ -56,9 +56,9 @@ sample     = 10
 fig     = plt.figure(figsize=(10,10))
 ax      = fig.add_subplot(autoscale_on=True,projection="3d")
 animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::sample,:])
-animateAndSave = True
+animateAndSave = False
 if animateAndSave:
-    videoname  = path+'/Videos/CircularTraj.gif' 
+    videoname  = path+'/Videos/TrajectoryTrials.gif' 
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
     show       = False

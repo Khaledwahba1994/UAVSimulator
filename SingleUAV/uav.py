@@ -44,7 +44,7 @@ class UavModel:
             return posNext, velNext
 
         def states_evolution(self, f_th):
-            """this method generates the 6D states evolution for the UAV given:
+            """this method generates the 6D states evolution for the UAV given for each time step:
                 the control input: f_th = [f1, f2, f3, f4] for the current step"""
             tau_inp = self.all @ f_th
             fz      = tau_inp[0]
