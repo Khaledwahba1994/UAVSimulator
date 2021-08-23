@@ -54,13 +54,13 @@ ___
 <!-- Github Markdown -->
 
 <!-- Code Blocks -->
-```bash
+<!-- ```bash
 python3 
 ```
 ```python
 def add(num1, num2):
     return num1 + num2
-```
+``` -->
 <!-- Tables -->
 
 <!-- | Name   | Email       | -->
