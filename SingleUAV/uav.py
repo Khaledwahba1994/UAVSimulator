@@ -28,7 +28,7 @@ class UavModel:
             self.dt     = dt
            
         def __str__(self):
-          return "\nUAV object with physical parameters defined as follows: \n \n m = {} kg,\n \n{} {}\n I = {}{} [kg.m^2] \n {}{}".format(self.m,'     ',self.I[0,:],' ',self.I[1,:],'     ',self.I[2,:])
+          return "\nUAV object with physical parameters defined as follows: \n \n m = {} kg,\n \n{} {}\n I = {}{} [kg.m^2] \n {}{}\n\n Initial State = {}".format(self.m,'     ',self.I[0,:],' ',self.I[1,:],'     ',self.I[2,:], self.state)
           
         def getNextAngularState(self, curr_w, curr_q, tau):
            wdot  = self.invI @ (tau - skew(curr_w) @ self.I @ curr_w)
