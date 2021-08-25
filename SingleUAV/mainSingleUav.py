@@ -2,7 +2,7 @@ import os
 import sys 
 path = os.getcwd()
 sys.path.insert(0, path)
-sys.path.insert(0, path+'/ControllerUAV')
+sys.path.insert(0, path+'/ControllerUAV/')
 sys.path.insert(0, path+'/Utilities/')
 sys.path.insert(0, path+'/UAV_Trajectory/')
 import uav
@@ -56,6 +56,7 @@ sample     = 10
 fig     = plt.figure(figsize=(10,10))
 ax      = fig.add_subplot(autoscale_on=True,projection="3d")
 animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::sample,:])
+
 animateAndSave = False
 if animateAndSave:
     videoname  = path+'/Videos/TrajectoryTrials.gif' 
