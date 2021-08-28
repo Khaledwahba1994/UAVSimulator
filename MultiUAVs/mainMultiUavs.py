@@ -41,7 +41,7 @@ for i in range(0,len(t)):
         uavRobot       = multirobots.robots[robot]
         state          = uavRobot.state
         uavcontr       = multirobots.uavcontrollers[robot]
-        f_th, qref     = uavcontr.LargeAngleController(state, refTraj[robot][0],refTraj[robot][1])
+        f_th, qref     = uavcontr.largeAngleController(state, refTraj[robot][0],refTraj[robot][1])
         state          = uavRobot.states_evolution(f_th)
         # Stack the full State
         fullstateSt[robot] = np.concatenate((fullstateSt[robot], state.reshape(1,13))) 

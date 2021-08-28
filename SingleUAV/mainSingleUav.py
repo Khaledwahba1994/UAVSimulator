@@ -21,7 +21,7 @@ import time
 uavModel = uav.UavModel(dt, initState)
 # Given the controller gains, initialize a controller object
 k = [10,5,70,10]
-controller = controller.Controller(kpp=k[0],kdp=k[1],kpo=k[2],kdo=k[3])
+controller = controller.Controller(uavModel,kpp=k[0],kdp=k[1],kpo=k[2],kdo=k[3])
 # Logging the state data
 full_state = np.zeros((1,13))
 ref_state  = np.zeros((1,13))
@@ -39,7 +39,7 @@ for i in range(0,len(t)):
         RefTraj, RefTwist = Hover(p)
     # Start Trajectory Tracking Algorithm    
     state      = uavModel.state
-    f_th, qref = controller.LargeAngleController(state, RefTraj, RefTwist)
+    f_th, qref = controller.largeAngleController(state, RefTraj, RefTwist)
     state      = uavModel.states_evolution(f_th)
     #  Reference State at step i
     currRefSt         = np.zeros((1,13))
