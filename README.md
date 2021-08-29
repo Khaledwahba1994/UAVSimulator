@@ -28,6 +28,7 @@ ___
 # Tasks List
 ## Single UAV:
 * [ ] Generating Trajectories from given waypoints using Polynomials.
+* [ ] Add Feed-forward Terms to the controller
 ___
 ## Multi UAV:
 * [ ] Manipulating Axes limits in Animation
