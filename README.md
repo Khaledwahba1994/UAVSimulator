@@ -5,8 +5,8 @@ This folder contains the `uav.py` file, which encodes the dynamic model of a sin
 
  In order to start the simulation for a single UAV, there exists the main file `mainSingleUav.py`. This file initializes an instance of the uavModel and Controller objects (ControllerUAV --> `controller.py`), then a _for_ loop starts, where the states evolution takes place while generating the control input at each time step _dt_. 
  
-A simple test of the simulator is done using circle trajectory and hover to certain pose (check UAV_Trajectory --> `UavTrajectory.py`). Change the value of *traj_choice* variable inside `mainSingleUav.py`. Finally to animate and save video inside Video Folder, manipulate the booleans _animateAndSave_, _show_ and _save_. 
-The following gif shows the uav tracjing a circular trajectory, starting from an almost upside down pose. 
+A simple test of the simulator is done using circle trajectory and hover to certain pose (check UAV_Trajectory --> `UavTrajectory.py`). Change the value of *traj_choice* variable (keep it = 1, still under development) inside `mainSingleUav.py`. Finally to animate and save video inside Video Folder, manipulate the booleans _animateAndSave_, _show_ and _save_. 
+The following gif shows the uav tracking a circular trajectory, starting from an almost upside down pose. 
 
 To test the simulator for a single UAV, open a terminal inside the UAVsimulator folder, then run
  ```bash
