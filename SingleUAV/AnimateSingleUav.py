@@ -33,12 +33,13 @@ class PlotandAnimate:
         self.armb2  = Rz(np.pi/2) @ (self.armb1.reshape(3,))
         self._armb2 = Rz(np.pi/2) @ (self._armb1.reshape(3,))
 
-    def startAnimation(self,videoname,show,dt):
+    def startAnimation(self,videoname,show,save,dt):
         self.ani = animation.FuncAnimation(self.fig, self.animate, frames=len(self.full_state), interval=dt*1000,blit=True)
-        self.ani.save(videoname)
         if show:   
             plt.show()
-        
+        if save:
+            self.ani.save(videoname)
+            
     def setlimits(self):
         max_x = max(self.reference_state[0,:])
         max_y = max(self.reference_state[1,:])

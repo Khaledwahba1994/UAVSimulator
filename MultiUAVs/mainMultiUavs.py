@@ -15,7 +15,7 @@ from mpl_toolkits import mplot3d
 import matplotlib.animation as animation
 from UavTrajectory import DesiredTrajInfinity, DesiredTrajHelix, Hover
 from initializeMultiUavs import initStates, teamNum, t0, tf, dt, t
-from Animate_single import PlotandAnimate
+from AnimateSingleUav import PlotandAnimate
 import time
 import multiUavs
 
@@ -74,11 +74,15 @@ multirobots.setData(dataDict)
 animateAndSave = True
 if animateAndSave:
     videoname = path+'/Videos/UpsideDownTeam.gif'
-    show = False
+    show = True
+    save = False
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
-    print("Converting Animation to Video. \nPlease wait...")
+    if show:
+        print("Animating.")
+    if save:
+        print("Converting Animation to Video. \nPlease wait...")
     now = time.time()
-    multirobots.startAnimation(fig, ax, videoname, show, dt_sampled)
+    multirobots.startAnimation(fig, ax, videoname, show, save, dt_sampled)
     end = time.time()
     print("Run time:  {:.3f}s".format((end - now)))

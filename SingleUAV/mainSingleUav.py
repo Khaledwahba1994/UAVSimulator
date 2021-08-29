@@ -14,7 +14,7 @@ from mpl_toolkits import mplot3d
 import matplotlib.animation as animation
 from UavTrajectory import DesiredTrajInfinity, DesiredTrajHelix, Hover
 from initialize import initState, t0, tf, dt, t
-from Animate_single import PlotandAnimate
+from AnimateSingleUav import PlotandAnimate
 import time
 
 # Initialize UAV object with a given initState and a step time dt
@@ -57,14 +57,18 @@ fig     = plt.figure(figsize=(10,10))
 ax      = fig.add_subplot(autoscale_on=True,projection="3d")
 animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::sample,:])
 
-animateAndSave = False
+animateAndSave = True
 if animateAndSave:
-    videoname  = path+'/Videos/TrajectoryTrials.gif' 
+    videoname  = path+'/Videos/CircularTrajectory.gif' 
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
-    show       = False
-    print("Converting Animation to Video. \nPlease wait...")
+    show       = True
+    save       = False
+    if show:
+        print("Showing animation.")
+    if save:
+        print("Converting Animation to Video. \nPlease wait...")
     now = time.time()
-    startanimation = animate.startAnimation(videoname,show,dt_sampled)
+    startanimation = animate.startAnimation(videoname,show,save,dt_sampled)
     end = time.time()
     print("Run time:  {:.3f}s".format((end - now)))

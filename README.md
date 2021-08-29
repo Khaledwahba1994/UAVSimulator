@@ -1,75 +1,33 @@
-<!-- Heading -->
-<!-- # Heading 1 -->
-<!-- ## Heading 2 -->
-<!-- ### Heading 3 -->
-<!-- #### Heading 4 -->
-<!-- ##### Heading 5 -->
-<!-- ###### Heading 6 -->
+This is an Unmanned Aerial Vehicles (UAVs) simulator. it can simulate, animate and save a video of a single UAV or multi-UAVs. The structure of the simulator is as follows:
 
-<!-- Italics -->
-<!-- *This text* is italic -->
+# SingleUAV Folder:
+This folder contains the uav.py file, which encodes the dynamic model of a single uav. In addition, it has the initialize.py which initializes the states, initial and final time, time step and gravitational acceleration constant. For animation, check the AnimateSingleUAV.py file. In order to start the simulation for a single UAV, there exists the main file mainSingleUav.py. This file initializes an instance of the uavModel and Controller objects (ControllerUAV --> controller.py), then a _for_ loop starts, where the states evolution takes place while generating the control input at each time step _dt_. 
+ 
+A simple test of the simulator is done using circle trajectory and hover to certain pose (check UAV_Trajectory --> UavTrajectory.py). Change the value of *traj_choice* variable inside mainSingleUav.py. Finally to animate and save video inside Video Folder, manipulate the booleans _animateAndSave_, _show_ and _save_. 
+The following gif shows the uav tracjing a circular trajectory, starting from an almost upside down pose. 
 
-<!-- _This text_ is italic -->
-
-<!-- **This text** is italic -->
-
-<!-- __This text__ is italic -->
-
-<!-- Strikethrough -->
-<!-- ~~This text~~ is strikethrough -->
-
-<!-- Horizontal Rule -->
-
----
-___
-
-<!-- Blockquote -->
-<!-- > This is a quote -->
-
-<!-- Links -->
-<!-- [My email](khaled.hassan1994@gmail.com) -->
-
-<!-- [My email](khaled.hassan1994@gmail.com -->
-<!-- "Khaled's email") -->
-
-<!-- UL -->
-<!-- * Item 1  -->
-<!-- * Item 2 -->
-<!-- * Item 3    -->
-<!--     * Nested Item 1 -->
-<!--     * Nested Item 2 -->
-
-<!-- OL -->
-<!-- 1. Item 1 -->
-<!-- 1. Item 2 -->
-<!-- 1. Item 3 -->
-
-<!-- Inline Code Block -->
-
-<!-- Images -->
-![Markdown Logo](Videos/UpsideDownTeam.gif)
-![Markdown Logo](Videos/CircularTraj.gif)
-
-
-<!-- Github Markdown -->
-
-<!-- Code Blocks -->
-<!-- ```bash
-python3 
+To test the simulator for a single UAV, open a terminal inside the UAVsimulator folder, then run
+ ```bash
+python3 SingleUAV/mainSingleUav.py 
 ```
-```python
-def add(num1, num2):
-    return num1 + num2
-``` -->
-<!-- Tables -->
-
-<!-- | Name   | Email       | -->
-<!-- | ------ | ----------- | -->
-<!-- | Khaled | k@gmail.com | -->
-
-<!-- Task Lists -->
-
-<!-- * [x] Task 1  -->
-<!-- * [x] Task 2 -->
-<!-- * [ ] Task 3 -->
-
+To save a video or gif, change the boolean _save_ to *True* (The default is False), and choose the name and extension of the video in *videoname* string variable.
+![Markdown Logo](Videos/CircularTraj.gif)
+___
+___
+# MultiUAVs Folder:
+The MultiUAVs folder has the same structure as SingleUAV foler. This is still under development, and the main idea of creating such folder is to test whether the abstraction level that was used in the single UAV is consistent and can handle the multi-UAVs case. the mainMUltiUavs.py is the treated as the main file, where it initializes of multirobots team as a dictionary with the number of team members and initial state of each UAV (check initializeMultiUavs.py) 
+To test the simulator for a single UAV, open a terminal inside the UAVsimulator folder, then run
+ ```bash
+python3 MultiUAVs/mainMultiUavs.py
+```
+![Markdown Logo](Videos/UpsideDownTeam.gif)
+___
+___
+# Task Lists
+## Single UAV:
+* [ ] Generating Trajectories from given waypoints using Polynomials.
+___
+## Multi UAV:
+* [ ] Manipulating Axes limits in Animation
+* [ ] Testing Formation Control Algorithms For Multi-UAVs.
+___
