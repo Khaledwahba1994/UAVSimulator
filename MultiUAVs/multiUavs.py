@@ -18,7 +18,7 @@ class MultiRobots:
             name  = str(i)
             state = initStates[name] 
             self.robots[name] = uav.UavModel(dt, state)
-            self.uavcontrollers[name] = controller.Controller()
+            self.uavcontrollers[name] = controller.Controller(self.robots[name])
         
     def setData(self,dataDict):
         self.dataDict = dataDict
@@ -29,14 +29,15 @@ class MultiRobots:
         self.armb2    = Rz(np.pi/2) @ (self.armb1.reshape(3,))
         self._armb2   = Rz(np.pi/2) @ (self._armb1.reshape(3,))
  
-    def startAnimation(self,fig,ax,videoname,show,dt):
+    def startAnimation(self,fig,ax,videoname,show,save,dt):
         self.fig = fig
         self.ax  = ax
         self.ani = animation.FuncAnimation(self.fig, self.animate, frames=len(self.dataDict['0'][0]), interval=dt*1000,blit=True)
-        self.ani.save(videoname)
         if show:
             plt.show()
-
+        if save:
+            self.ani.save(videoname)
+            
     def animate(self,i):
         self.ax.cla()
         self.setlimits()
