@@ -6,8 +6,7 @@ def skew(w):
     w2 = w[1,0]
     w3 = w[2,0]
     return np.array([[0, -w3, w2],[w3, 0, -w1],[-w2, w1, 0]]).reshape((3,3))
-
-
+    
 def veeMap(w_tilde):
     w1 = w_tilde[2,1]
     w2 = w_tilde[0,2]
