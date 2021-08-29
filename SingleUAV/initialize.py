@@ -6,7 +6,7 @@ from utils import Rx, Ry, Rz
 dt = 0.01 #time step
 g = 9.81 #gravitational constant [m/s^2]
 t0 = 0
-tf = 10*np.pi
+tf = 1*np.pi
 
 # Initialize the time t vector given:
 # Initial time: t0
@@ -15,10 +15,10 @@ tf = 10*np.pi
 samples = int((tf-t0)/dt)
 t = np.linspace(t0, tf+dt, num=samples)
 # Initialize the Pose
-initPos = np.array([[0,0,2]])
+initPos = np.array([[1,0,1]])
 initR = np.eye(3)
 # initialize Rotation matrix about Roll-Pitch-Yaw
-angle = [175,0,0]
+angle = [0,0,0]
 initR   = Rz((np.pi/180)*angle[2]) @ Ry((np.pi/180)*angle[1]) @ Rx((np.pi/180)*angle[0])
 initq = from_matrix(initR)
 #Initialize Twist

@@ -16,7 +16,7 @@ def DesiredTrajHelix(t, xinit, yinit, zinit):
     desiredTwist       = np.zeros((6,))
     desiredFlatOutputs[0] = 1 * np.cos((t)) 
     desiredFlatOutputs[1] = 1 * np.sin((t)) 
-    desiredFlatOutputs[2] = 1#1 + (t/5)
+    desiredFlatOutputs[2] = 1 + (t/10)
     desiredFlatOutputs[3] = 0
     return desiredFlatOutputs, desiredTwist
 
