@@ -23,7 +23,7 @@ python3 MultiUAVs/mainMultiUavs.py
 ![Markdown Logo](Videos/UpsideDownTeam.gif)
 ___
 ___
-# Task Lists
+# Tasks List
 ## Single UAV:
 * [ ] Include the motor dynamics
 * [ ] Generating Trajectories from given waypoints using Polynomials.
