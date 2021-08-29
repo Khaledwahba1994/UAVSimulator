@@ -1,4 +1,4 @@
-This is an Unmanned Aerial Vehicles (UAVs) simulator. it can simulate, animate and save a video of a single UAV or multi-UAVs. The structure of the simulator is as follows:
+This is an Unmanned Aerial Vehicles (UAVs) simulator. It can simulate, animate and save a video of a single UAV or multi-UAVs. The structure of the simulator is as follows:
 
 # SingleUAV Folder:
 This folder contains the uav.py file, which encodes the dynamic model of a single uav. In addition, it has the initialize.py which initializes the states, initial and final time, time step and gravitational acceleration constant. For animation, check the AnimateSingleUAV.py file. In order to start the simulation for a single UAV, there exists the main file mainSingleUav.py. This file initializes an instance of the uavModel and Controller objects (ControllerUAV --> controller.py), then a _for_ loop starts, where the states evolution takes place while generating the control input at each time step _dt_. 
@@ -25,7 +25,9 @@ ___
 ___
 # Task Lists
 ## Single UAV:
+* [ ] Include the motor dynamics
 * [ ] Generating Trajectories from given waypoints using Polynomials.
+* [ ] Add Feed-Forward Term in the control input, after generating the trajectories (i.e the second derivative of the flat outputs)
 ___
 ## Multi UAV:
 * [ ] Manipulating Axes limits in Animation
