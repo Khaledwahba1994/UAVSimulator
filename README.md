@@ -25,6 +25,7 @@ ___
 ___
 # Task Lists
 ## Single UAV:
+* [ ] Include the motor dynamics
 * [ ] Generating Trajectories from given waypoints using Polynomials.
 * [ ] Add Feed-Forward Term in the control input, after generating the trajectories (i.e the second derivative of the flat outputs)
 ___
