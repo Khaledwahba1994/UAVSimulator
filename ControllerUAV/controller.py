@@ -82,8 +82,8 @@ class Controller:
         # Orientation and Angular Velocity Error
         er, ew = self.angularErrors(Rd_IB, R_IB, curr_w, desired_w)
         # The Control Inputs
-        Kp = self.kpo * self.I
-        Kd = self.kdo * self.I
+        Kp = self.kpo * np.eye(3)
+        Kd = self.kdo * np.eye(3)
         tau = (-Kp @ er - Kd @ ew + skew(curr_w) @ self.I @ curr_w)
         u_inp[0] = fzb
         u_inp[1::] = tau.reshape(3,)
