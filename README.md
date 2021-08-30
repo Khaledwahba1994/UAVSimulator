@@ -17,7 +17,7 @@ To save a video or gif, change the boolean _save_ to *True* (The default is Fals
 ___
 ___
 # MultiUAVs Folder:
-The MultiUAVs folder has the same structure as SingleUAV folder. This is still under development, and the main idea of creating such folder is to test whether the abstraction level that was used in the single UAV is consistent and can handle the multi-UAVs case. the `mainMUltiUavs.py` is the treated as the main file, where it initializes of multirobots team as a dictionary with the number of team members and initial state of each UAV (check `initializeMultiUavs.py`) 
+The MultiUAVs folder has the same structure as SingleUAV folder. This is still under development, and the main idea of creating such folder is to test whether the abstraction level that was used in the single UAV is consistent and can handle the multi-UAVs case. the `mainMultiUavs.py` is treated as the main file, where it initializes a multirobots team as a dictionary with the number of team members and initial state of each UAV (check `initializeMultiUavs.py`) 
 To test the simulator for a single UAV, open a terminal inside the UAVsimulator folder, then run
  ```bash
 python3 MultiUAVs/mainMultiUavs.py
