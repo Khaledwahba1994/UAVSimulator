@@ -14,10 +14,10 @@ class UavModel:
                0.718277 1.800197 29.261652)*10^-6 [kg.m^2]"""
 
         def __init__(self,dt ,state):
-            self.m      = 28 * 10**(-3)  
-            self.I      = np.array([[16.571710, 0, 0],[0, 16.571710, 0],[0, 0, 29.261652]])* 10 ** (-6) 
+            self.m      = 28e-3  
+            self.I      = np.array([[16.571710, 0, 0],[0, 16.571710, 0],[0, 0, 29.261652]])* 1e-6
             self.invI   = linalg.inv(self.I)
-            self.d      = 4 * 10**(-3) 
+            self.d      = 4e-3 
             self.cft    = 0.005964552 
             self.all    = np.array([[1, 1, 1, 1],[0, -self.d, 0 , self.d],[self.d, 0 , -self.d, 0],[-self.cft, self.cft, -self.cft, self.cft]])
             self.invAll = linalg.pinv(self.all)
@@ -25,7 +25,7 @@ class UavModel:
              ### State initialized with the Initial values ###
              ### state = [x, y, z, xdot, ydot, zdot, q1, q2, q3, q4, wx, wy, wz]
             self.state = state
-            self.dt     = dt
+            self.dt    = dt
            
         def __str__(self):
           return "\nUAV object with physical parameters defined as follows: \n \n m = {} kg,\n \n{} {}\n I = {}{} [kg.m^2] \n {}{}\n\n Initial State = {}".format(self.m,'     ',self.I[0,:],' ',self.I[1,:],'     ',self.I[2,:], self.state)
@@ -33,14 +33,14 @@ class UavModel:
         def getNextAngularState(self, curr_w, curr_q, tau):
            wdot  = self.invI @ (tau - skew(curr_w) @ self.I @ curr_w)
            wNext = wdot * self.dt + curr_w
-           qNext = quat_integrate(curr_q, wNext, self.dt)
+           qNext = quat_integrate(curr_q, curr_w, self.dt)
            return qNext, wNext
 
         def getNextLinearState(self, curr_vel, curr_position, q ,fz):
             R_IB = to_matrix(q)
             a =  (1/self.m) * (self.grav + R_IB @ np.array([0,0,fz]))
             velNext = a * self.dt + curr_vel
-            posNext = velNext * self.dt + curr_position
+            posNext = curr_vel * self.dt + curr_position
             return posNext, velNext
 
         def states_evolution(self, f_th):
