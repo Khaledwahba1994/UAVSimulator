@@ -9,6 +9,7 @@ class Controller:
         self.kdp    = kdp
         self.kpo    = kpo
         self.kdo    = kdo
+        self.uav    = uavModel
         self.m      = uavModel.m  
         self.I      = uavModel.I
         self.d      = uavModel.d   
@@ -18,18 +19,18 @@ class Controller:
         self.invAll = uavModel.invAll
         self.g_comp = -(1/self.m) * uavModel.grav.reshape(3,1)
 
-    def desiredStates(self, desiredFlatOutputs, desiredTwist):
+    def getDesiredStates(self, desiredFlatOutputs, desiredTwist):
         desired_pos = desiredFlatOutputs[0:3].reshape(3,1)
         desired_yaw = desiredFlatOutputs[3]
         desired_vel = desiredTwist[0:3].reshape(3,1)
         desired_w   = desiredTwist[3::].reshape(3,1)
         return desired_pos, desired_yaw, desired_vel, desired_w
 
-    def currentStates(self, state):
-        curr_pos  = state[0:3].reshape(3,1)  # position: x,y,z
-        curr_vel  = state[3:6].reshape(3,1)  # lin velocity: xdot, ydot, zdot
-        curr_q    = state[6:10].reshape(4,1) # quaternions: [q1, q2, q3, q4]
-        curr_w    = state[10::].reshape(3,1) # ang velocity: wx, wy, wz
+    def getCurrentStates(self):
+        curr_pos  = self.uav.state[0:3].reshape(3,1)  # position: x,y,z
+        curr_vel  = self.uav.state[3:6].reshape(3,1)  # lin velocity: xdot, ydot, zdot
+        curr_q    = self.uav.state[6:10].reshape(4,1) # quaternions: [q1, q2, q3, q4]
+        curr_w    = self.uav.state[10::].reshape(3,1) # ang velocity: wx, wy, wz
         return curr_pos, curr_vel, curr_q, curr_w
 
     def linearErrors(self, curr_pos, desired_pos, curr_vel, desired_vel):
@@ -63,12 +64,12 @@ class Controller:
         ew = curr_w - R_IB.T @ Rd_IB @ desired_w 
         return er, ew
 
-    def largeAngleController(self, state, desiredFlatOutputs, desiredTwist):
+    def largeAngleController(self, desiredFlatOutputs, desiredTwist):
         u_inp      = np.zeros((4,))
          # Extract Current States 
-        curr_pos, curr_vel, curr_q, curr_w = self.currentStates(state)
+        curr_pos, curr_vel, curr_q, curr_w = self.getCurrentStates()
         # Extract Desired States
-        desired_pos, desired_yaw, desired_vel, desired_w = self.desiredStates(desiredFlatOutputs, desiredTwist)
+        desired_pos, desired_yaw, desired_vel, desired_w = self.getDesiredStates(desiredFlatOutputs, desiredTwist)
         # Position and Velocity error:
         ep, ev = self.linearErrors(curr_pos, desired_pos, curr_vel, desired_vel)
         # Desired accelerations in Inertial Frame

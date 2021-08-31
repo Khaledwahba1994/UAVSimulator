@@ -38,8 +38,7 @@ for i in range(0,len(t)):
             p = [0,1,1,0]    
         RefTraj, RefTwist = Hover(p)
     # Start Trajectory Tracking Algorithm    
-    state      = uavModel.state
-    f_th, qref = controller.largeAngleController(state, RefTraj, RefTwist)
+    f_th, qref = controller.largeAngleController(RefTraj, RefTwist)
     state      = uavModel.states_evolution(f_th)
     #  Reference State at step i
     currRefSt         = np.zeros((1,13))
