@@ -3,24 +3,23 @@ import numpy.polynomial as poly
 import cvxpy as cp 
 polynomial = poly.Polynomial
 
+# Problem data.
+m = 30
+n = 20
+np.random.seed(1)
+A = np.random.randn(m, n)
+b = np.random.randn(m)
 
-x = cp.Variable()
-y = cp.Variable()
+# Construct the problem.
+x = cp.Variable(n)
+objective = cp.Minimize(cp.sum_squares(A @ x - b))
+constraints = [0 <= x, x <= 1]
+prob = cp.Problem(objective, constraints)
 
-# Create two constraints.
-constraints = [x + y == 1,
-               x - y >= 1]
-
-# Form objective.
-obj = cp.Minimize((x - y)**2)
-
-# Form and solve problem.
-prob = cp.Problem(obj, constraints)
-prob.solve()  # Returns the optimal value.
-print("status:", prob.status)
-print("optimal value", prob.value)
-print("optimal var", x.value, y.value)
-# class Trajectory:
-#     def __init__(self,cond_pos,cond_vel,cond_acc):
-#       pass
-        
+# The optimal objective is returned by prob.solve().
+result = prob.solve()
+# The optimal value for x is stored in x.value.
+print(x.value)
+# The optimal Lagrange multiplier for a constraint
+# is stored in constraint.dual_value.
+print(constraints[0].dual_value)
