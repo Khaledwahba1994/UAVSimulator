@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.polynomial as poly
 import cvxpy as cp
+from scipy import linalg as la
 import matplotlib.pyplot as plt
 polynomial = poly.Polynomial
 
@@ -63,18 +64,27 @@ Hk = np.array([[hk**4    , hk**5    , hk**6      , hk**7],
                [12*hk**2 , 20*hk**3 , 30*hk**4   , 42*hk**5],
                [24*hk    , 60*hk**2 , 120*hk**3  , 210*hk**4]]).reshape((4,4))
 
-# for i in range(0,pieces-1):
-#     for axis in range(0,3):
-#         pki = pk[axis,i:i+3]  
-#         vki = np.array([vk[axis,i],vk[axis,i+3]])
-#         aki =      
-#         b = h1_vec @ Hk @ 
+hk_tri = np.array([[1, hk, 0.5*hk**2],
+                   [0, 1,  hk],
+                   [0, 0, 1]]).reshape((3,3))
 
-# for i in range(0,n_waypoints):
-#     pass
+invHk = la.inv(Hk)
+invHk = invHk[1:,1:].reshape(3,3)
+h1_v = h1_vec[0,1:].reshape((1,3))
 
+A_v = np.zeros((pieces-1,3*(pieces-1)))
+b_v = np.zeros((pieces-1,1))
+print(A_v.shape)
 
+for i in range(0,(3*(pieces-1))-1,3):
+    z = i+3
+    A_vdiag =((h1_v @ invHk) + (invHk[0,:] @ hk_tri)).reshape(1,3)
+    np.copyto(A_v[i:z,i:z], A_vdiag)
+    print(i,z)
+    # A_v[i:z,i:z] = A_vdiag.copy()
+    print(A_v[i:z,i:z])
 
+print(A_v[:,:])
 ## Construct the Equality Constraints
 Ax_eq = np.zeros((8*pieces,8*pieces))
 Ay_eq = np.zeros((8*pieces,8*pieces))
