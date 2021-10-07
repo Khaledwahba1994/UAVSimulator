@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
+
 # 
 
 # Problem data.
@@ -26,7 +27,7 @@ ax  = fig.add_subplot(autoscale_on=True,projection="3d")
 ax.plot(data[1,:],data[2,:],data[3,:])
 
 
-pieces = 3
+pieces = 10
 n_waypoints = pieces + 1 #number of waypoints
 hk = time[-1]/pieces #time per piece [0,hk]
 
@@ -139,28 +140,37 @@ coefsz = np.zeros((pieces-1,8))
 
 j = 0
 n = 8 * pieces
-# for i in range(0,3):
-x = cp.Variable((n,1))
-y = cp.Variable((n,1))
-z = cp.Variable((n,1))
-print(Ax_eq)
-objectivex = cp.quad_form(x, Qx)
-objectivey = cp.quad_form(y, Qy) 
-objectivez = cp.quad_form(y, Qy)
-constraintsx = [Ax_eq@x == bx]
-constraintsy = [Ay_eq@y == by]
-constraintsz = [Az_eq@z == bz]
+for i in range(0,n,8):
+    x = cp.Variable((8,1))
+    y = cp.Variable((8,1))
+    z = cp.Variable((8,1))
 
-probx = cp.Problem(cp.Minimize(cp.quad_form(x, Qx)),constraints=constraintsx)
-proby = cp.Problem(cp.Minimize(objectivex),constraintsy)
-probz = cp.Problem(cp.Minimize(objectivex),constraintsz)
+    objectivex = cp.quad_form(x, Qx[i:i+8,i:i+8])
+    objectivey = cp.quad_form(y, Qy[i:i+8,i:i+8]) 
+    objectivez = cp.quad_form(z, Qz[i:i+8,i:i+8])
+    constraintsx = [Ax_eq[i:i+8,i:i+8]@x == bx[i:i+8]]
+    constraintsy = [Ay_eq[i:i+8,i:i+8]@y == by[i:i+8]]
+    constraintsz = [Az_eq[i:i+8,i:i+8]@z == bz[i:i+8]]
 
-probx.solve(solver="OSQP",eps_dual_inf=1e-6)
-print("\nThe optimal value is", probx.value)
-print("A solution x is")
-print(x.value)
+    probx = cp.Problem(cp.Minimize(objectivex),constraints=constraintsx)
+    proby = cp.Problem(cp.Minimize(objectivey),constraints=constraintsy)
+    probz = cp.Problem(cp.Minimize(objectivez),constraints=constraintsz)
+    print("probx is DCP:", probx.is_dcp())
+    print("proby is DCP:", proby.is_dcp())
+    print("probz is DCP:", probz.is_dcp())
+    print("Ax_eq@x == bx is DCP:", (constraintsx[0]).is_dcp())
+    print("Ay_eq@x == by is DCP:", (constraintsy[0]).is_dcp())
+    print("Az_eq@x == bz is DCP:", (constraintsz[0]).is_dcp())
+    probx.solve(solver='OSQP',enforce_dpp=True)
+    print("\nThe optimal value is", probx.value)
+    print("A solution x is")
+    print(x.value)
+# probx.solve(solver='OSQP',enforce_dpp=True)
+# print("\nThe optimal value is", probx.value)
+# print("A solution x is")
+# print(x.value)
 
-print(y.value)
+# print(y.value)
 
 # probz.solve()
 # plt.show()
