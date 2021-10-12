@@ -7,7 +7,7 @@ polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
 
-# 
+#
 
 # Problem data.
 # WayPoints for cirle trajetory
@@ -68,27 +68,27 @@ for axis in range(0,3):
     b_v = np.zeros((pieces-1,1))
 
     b_v[0,0]  = h1_vec @ invHk @ hk_tri @ vars0
-    j,k = 0,3 
+    j,k = 0,3
 
     for i in range(0,pieces-1):
         ## I need to revise this vector, calculation-wise
         b_v[pieces-i-2,0] +=  -( (one_vec @ invHk @ ((pk[axis,i+2] - pk[axis,i+1])*one_vec.T)) \
                               -  (h1_vec @ invHk @ ((pk[axis,i+1] -   pk[axis,i])*one_vec.T)))
 
-        Adiag  = (h1_vec @ invHk) + (one_vec @ invHk @ hk_tri) 
+        Adiag  = (h1_vec @ invHk) + (one_vec @ invHk @ hk_tri)
         A_v[i,j:j+3] = Adiag[:,1:]
         if i >= 1 and i < pieces-1:
-            As1 = - h1_vec @ invHk @ hk_tri  
+            As1 = - h1_vec @ invHk @ hk_tri
             A_v[i,j-3:j] = As1[:,1:]
         j += 3
         if k+3 <= 3*(pieces-1):
             As0 = -one_vec @ invHk
             A_v[i,k:k+3] = As0[:,1:]
-            k += 3       
+            k += 3
     print('A_v')
     print(A_v)
     print('b_v')
-    print(b_v.T)         
+    print(b_v.T)
     mid_conditions = la.pinv(A_v) @  b_v
     print()
     print(mid_conditions)
@@ -124,12 +124,12 @@ by = np.zeros((8*pieces,))
 bz = np.zeros((8*pieces,))
 
 A0 = np.eye(4)
-A0[2,2] = 2 
+A0[2,2] = 2
 A0[3,3] = 6
 print(pk)
 for axis in range(0,1):
     for i in range(0,pieces):
-        b0 = np.array([[pk[axis,i], vk[axis,i], ak[axis,i], jk[axis,i]]]).reshape(4,1);
+        b0 = np.array([[pk[axis,i], vk[axis,i], ak[axis,i], jk[axis,i]]]).reshape(4,1)
 
         b1  = np.array([[pk[axis,i+1] - pk[axis,i] - vk[axis,i]*hk - 0.5*ak[axis,i]*hk**2  - (1/6)*jk[axis,i]*hk**3],
                             [vk[axis,i+1] - vk[axis,i] - ak[axis,i]*hk - 0.5*jk[axis,i]*hk**2],
@@ -143,7 +143,7 @@ for axis in range(0,1):
         elif axis == 1:
             Ay_eq[8*i:8*(i+1),8*i:8*(i+1)] = la.block_diag(A0,Hk)
             by[8*i:8*(i+1)] = b
-        else: 
+        else:
             Az_eq[8*i:8*(i+1),8*i:8*(i+1)] = la.block_diag(A0,Hk)
             bz[8*i:8*(i+1)] = b
 
@@ -161,7 +161,7 @@ for i in range(0,n,8):
     z = cp.Variable(8)
 
     objectivex = (1/2)*cp.quad_form(x, Qx[i:i+8,i:i+8])
-    objectivey = (1/2)*cp.quad_form(y, Qy[i:i+8,i:i+8]) 
+    objectivey = (1/2)*cp.quad_form(y, Qy[i:i+8,i:i+8])
     objectivez = (1/2)*cp.quad_form(z, Qz[i:i+8,i:i+8])
 
     constraintsx = [Ax_eq[i:i+8,i:i+8] @ x == bx[i:i+8]]
@@ -217,7 +217,7 @@ for i in range(0,n,8):
 # print("probz is DCP:", probz.is_dcp())
 # print("Az_eq@z == bz is DCP:", (Az_eq@z == bz).is_dcp())
 # for i in range(0,8*pieces,8):
-    
+
 #     Qxi = Qx[i:i+8,i:i+8].reshape(8,8)
 #     Axi_eq = Ax_eq[i:i+8,i:i+8].reshape(8,8)
 #     bxi = bx[i:i+8].reshape(8,1)
@@ -265,7 +265,7 @@ for i in range(0,n,8):
 # constraints = [Ay_eq@y == by]
 # proby = cp.Problem(objective, constraints)
 
-# n =  8 * pieces 
+# n =  8 * pieces
 # z = cp.Variable(n)
 
 # objective = cp.Minimize(cp.quad_form(z, Qz))
@@ -283,12 +283,3 @@ for i in range(0,n,8):
 # # The optimal Lagrange multiplier for a constraint
 # # is stored in constraint.dual_value.
 # print(constraints[0].dual_value)
-
-
-
-
-
-
-
-
-
