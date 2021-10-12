@@ -3,6 +3,7 @@ import numpy.polynomial as poly
 import cvxpy as cp
 from scipy import linalg as la
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d 
 polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
@@ -14,20 +15,17 @@ np.set_printoptions(suppress=True)
 r = 0.3
 height = 0.7
 w = 2 * np.pi
-T = 2 * (2 * np.pi / w)
-time = np.linspace(0,T,100,endpoint=True)
+T = 4 * (2 * np.pi / w)
+time = np.linspace(0,T,600,endpoint=True)
 
 data = np.empty((4,time.size))
 data[0,:]  = time
 data[1,:]  = r * np.cos(w * time)
 data[2,:]  = r * np.sin(w * time)
-data[3,:]  = height#1+time/10
-fig = plt.figure(figsize=(10,10))
-ax  = fig.add_subplot(autoscale_on=True,projection="3d")
-ax.plot(data[1,:],data[2,:],data[3,:])
+data[3,:]  = 1+time/10
 
-
-pieces = 5
+## Define the number of splines
+pieces = 30
 n_waypoints = pieces + 1 #number of waypoints
 hk = time[-1]/pieces #time per piece [0,hk]
 
@@ -37,7 +35,7 @@ vk   = np.zeros((3,n_waypoints))
 ak   = np.zeros((3,n_waypoints))
 jk   = np.zeros((3,n_waypoints))
 step = round((len(data.T))/pieces)
-print(step)
+
 for i in range(0,pieces):
     index  = step*(i)
     pk[:,i] = data[1:,index]
@@ -51,30 +49,26 @@ pk[:,-1] = data[1:,-1]
 for axis in range(0,3):
     h1_vec = np.array([1, 5*hk, 15*hk**2, 35*hk**3]).reshape((1,4))
     Hk = np.array([[hk**4    , hk**5    , hk**6      , hk**7],
-                 [4*hk**3  , 5*hk**4  ,   6*hk**5  , 7*hk**6],
-                 [12*hk**2 , 20*hk**3 , 30*hk**4   , 42*hk**5],
-                 [24*hk    , 60*hk**2 , 120*hk**3  , 210*hk**4]]).reshape(4,4)
+                  [4*hk**3  , 5*hk**4  ,   6*hk**5  , 7*hk**6],
+                  [12*hk**2 , 20*hk**3 , 30*hk**4   , 42*hk**5],
+                  [24*hk    , 60*hk**2 , 120*hk**3  , 210*hk**4]]).reshape(4,4)
     hk_tri = np.array([[0, hk, 0.5*hk**2, (1/6)*hk**3],
-                    [0, 1,     hk    ,  0.5*hk**2],
-                    [0, 0,     1     ,         hk],
-                    [0, 0,     0     ,          1]]).reshape(4,4)
+                      [0, 1,     hk    ,  0.5*hk**2],
+                      [0, 0,     1     ,         hk],
+                      [0, 0,     0     ,          1]]).reshape(4,4)
     invHk = la.inv(Hk)
     one_vec = np.array([1,0,0,0]).reshape(1,4)
 
     vars0 = np.array([0,vk[axis,0],ak[axis,0],jk[axis,0]]).reshape(4,1)
-    varsN = np.array([0,vk[axis,-1],ak[axis,-1],jk[axis,-1]]).reshape(4,1)
-
+    
     A_v = np.zeros((pieces-1,3*(pieces-1)))
     b_v = np.zeros((pieces-1,1))
 
     b_v[0,0]  = h1_vec @ invHk @ hk_tri @ vars0
     j,k = 0,3
-
     for i in range(0,pieces-1):
-        ## I need to revise this vector, calculation-wise
-        b_v[pieces-i-2,0] +=  -( (one_vec @ invHk @ ((pk[axis,i+2] - pk[axis,i+1])*one_vec.T)) \
-                              -  (h1_vec @ invHk @ ((pk[axis,i+1] -   pk[axis,i])*one_vec.T)))
-
+        b_v[i,0] +=   (one_vec @ invHk @ ((pk[axis,i+2] - pk[axis,i+1])*one_vec.T)) \
+                     - (h1_vec @ invHk @ ((pk[axis,i+1] -   pk[axis,i])*one_vec.T))
         Adiag  = (h1_vec @ invHk) + (one_vec @ invHk @ hk_tri)
         A_v[i,j:j+3] = Adiag[:,1:]
         if i >= 1 and i < pieces-1:
@@ -85,13 +79,7 @@ for axis in range(0,3):
             As0 = -one_vec @ invHk
             A_v[i,k:k+3] = As0[:,1:]
             k += 3
-    print('A_v')
-    print(A_v)
-    print('b_v')
-    print(b_v.T)
     mid_conditions = la.pinv(A_v) @  b_v
-    print()
-    print(mid_conditions)
     ind = 1
     for midIndex in range(0,len(mid_conditions),3):
         vk[axis,ind] = mid_conditions[midIndex]
@@ -99,35 +87,20 @@ for axis in range(0,3):
         jk[axis,ind] = mid_conditions[midIndex+2]
         ind += 1
 
-# print('vk = ') / print(vk) /print('ak' ) /print(ak) / print('jk ') /print(jk)
-vk   = np.zeros((3,n_waypoints))
-ak   = np.zeros((3,n_waypoints))
-jk   = np.zeros((3,n_waypoints))
-## Construct the Hessian Matrix Q
-Qx = np.eye(8*pieces)
-Qy = np.eye(8*pieces)
-Qz = np.eye(8*pieces)
-for i in range(0,8*pieces,8):
-    sqrtQx = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-    Qx[i:i+8,i:i+8] = sqrtQx.T @ sqrtQx
-    sqrtQy = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-    Qy[i:i+8,i:i+8] = sqrtQy.T @ sqrtQy
-    sqrtQz = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-    Qz[i:i+8,i:i+8] = sqrtQz.T @ sqrtQz
 
 ## Construct the Equality Constraints Aeq matrix and beq for x-y-z axes
 Ax_eq = np.zeros((8*pieces,8*pieces))
 Ay_eq = np.zeros((8*pieces,8*pieces))
 Az_eq = np.zeros((8*pieces,8*pieces))
+A0 = np.eye(4)
+A0[2,2] = 2
+A0[3,3] = 6
+
 bx = np.zeros((8*pieces,))
 by = np.zeros((8*pieces,))
 bz = np.zeros((8*pieces,))
 
-A0 = np.eye(4)
-A0[2,2] = 2
-A0[3,3] = 6
-print(pk)
-for axis in range(0,1):
+for axis in range(0,3):
     for i in range(0,pieces):
         b0 = np.array([[pk[axis,i], vk[axis,i], ak[axis,i], jk[axis,i]]]).reshape(4,1)
 
@@ -148,138 +121,63 @@ for axis in range(0,1):
             bz[8*i:8*(i+1)] = b
 
 # Construct the problem.
-coefsx = np.zeros((pieces-1,8))
-coefsy = np.zeros((pieces-1,8))
-coefsz = np.zeros((pieces-1,8))
-
+coefsx = la.inv(Ax_eq) @ bx 
+coefsy = la.inv(Ay_eq) @ by
+coefsz = la.inv(Az_eq) @ bz
 
 n = 8 * pieces
+postraj  = np.zeros((4,step*pieces))
+veltraj  = np.zeros((4,step*pieces))
+acctraj  = np.zeros((4,step*pieces))
+jerktraj = np.zeros((4,step*pieces))
 
+postraj[0,:]  = time[:(step*pieces)]
+veltraj[0,:]  = time[:(step*pieces)]
+acctraj[0,:]  = time[:(step*pieces)]
+jerktraj[0,:] = time[:(step*pieces)]
+
+stepInd = 0
 for i in range(0,n,8):
-    x = cp.Variable(8)
-    y = cp.Variable(8)
-    z = cp.Variable(8)
+    xpoly = polynomial(np.array([coefsx[i:i+8]]).reshape(8,))
+    ypoly = polynomial(np.array([coefsy[i:i+8]]).reshape(8,))
+    zpoly = polynomial(np.array([coefsz[i:i+8]]).reshape(8,))
+    vxpoly, vypoly, vzpoly = xpoly.deriv(m=1),ypoly.deriv(m=1),zpoly.deriv(m=1)
+    axpoly, aypoly, azpoly = xpoly.deriv(m=2),ypoly.deriv(m=2),zpoly.deriv(m=2)
+    jxpoly, jypoly, jzpoly = xpoly.deriv(m=3),ypoly.deriv(m=3),zpoly.deriv(m=3)
 
-    objectivex = (1/2)*cp.quad_form(x, Qx[i:i+8,i:i+8])
-    objectivey = (1/2)*cp.quad_form(y, Qy[i:i+8,i:i+8])
-    objectivez = (1/2)*cp.quad_form(z, Qz[i:i+8,i:i+8])
+    time_hk = np.linspace(0, hk,step)
 
-    constraintsx = [Ax_eq[i:i+8,i:i+8] @ x == bx[i:i+8]]
-    constraintsy = [Ay_eq[i:i+8,i:i+8] @ y == by[i:i+8]]
-    constraintsz = [Az_eq[i:i+8,i:i+8] @ z == bz[i:i+8]]
+    postraj[1:,stepInd:stepInd+step]  = np.array([xpoly(time_hk),ypoly(time_hk),zpoly(time_hk)]).reshape(3,len(time_hk))
+    veltraj[1:,stepInd:stepInd+step]  = np.array([vxpoly(time_hk),vypoly(time_hk),vzpoly(time_hk)]).reshape(3,len(time_hk))
+    acctraj[1:,stepInd:stepInd+step]  = np.array([axpoly(time_hk),aypoly(time_hk),azpoly(time_hk)]).reshape(3,len(time_hk))
+    jerktraj[1:,stepInd:stepInd+step] = np.array([jxpoly(time_hk),jypoly(time_hk),jzpoly(time_hk)]).reshape(3,len(time_hk))
 
-    probx = cp.Problem(cp.Minimize(objectivex),constraints=constraintsx)
-    proby = cp.Problem(cp.Minimize(objectivey),constraints=constraintsy)
-    probz = cp.Problem(cp.Minimize(objectivez),constraints=constraintsz)
+    stepInd += step
 
-    print(bx[i:i+8])
-
-    print("probx is DCP:", probx.is_dcp())
-    print("proby is DCP:", proby.is_dcp())
-    print("probz is DCP:", probz.is_dcp())
-    print()
-    print("Ax_eq@x == bx is DCP:", (constraintsx[0]).is_dcp())
-    print("Ay_eq@x == by is DCP:", (constraintsy[0]).is_dcp())
-    print("Az_eq@x == bz is DCP:", (constraintsz[0]).is_dcp())
-
-
-# probx.solve()
-# print("\nThe optimal value is", probx.value)
-# print("A solution x is")
-# print(x.value)
-
-# proby.solve()
-# print("\nThe optimal value is", proby.value)
-# print("A solution y is")
-# print(y.value)
-
-# probz.solve()
-# print("\nThe optimal value is", probz.value)
-# print("A solution z is")
-# print(z.value)
+fig = plt.figure(figsize=(10,10))
+ax  = fig.add_subplot(autoscale_on=True,projection="3d")
+trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=1,label="7th order Spline Trajectory")
+refTraj = ax.plot(data[1,:],data[2,:],data[3,:],'r',lw=1,label='Reference Trajectory')
+wayp = ax.plot(pk[0,:],pk[1,:],pk[2,:],'*b',lw=2,label='waypoints')
+ax.legend()
+plt.grid()
+plt.show()
 
 
-# probx.solve(solver='OSQP',enforce_dpp=True)
-# print("\nThe optimal value is", probx.value)
-# print("A solution x is")
-# print(x.value)
+## Construct the Hessian Matrix Q
+Qx = np.eye(8*pieces)
+Qy = np.eye(8*pieces)
+Qz = np.eye(8*pieces)
+for i in range(0,8*pieces,8):
+    sqrtQx = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
+    Qx[i:i+8,i:i+8] = sqrtQx.T @ sqrtQx
+    sqrtQy = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
+    Qy[i:i+8,i:i+8] = sqrtQy.T @ sqrtQy
+    sqrtQz = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
+    Qz[i:i+8,i:i+8] = sqrtQz.T @ sqrtQz
 
-# print(y.value)
-
-# probz.solve()
-# plt.show()
-# y = cp.Variable(n)
-# proby = cp.Problem(cp.Minimize(cp.quad_form(y, Qy)),  [Ay_eq @ y == by])
-# print("proby is DCP:", proby.is_dcp())
-# print("Ay_eq@y == by is DCP:", (Ay_eq@y == by).is_dcp())
-# z = cp.Variable(n)
-# probz = cp.Problem(cp.Minimize(cp.quad_form(z, Qz)),  [Az_eq @ z == bz])
-# print("probz is DCP:", probz.is_dcp())
-# print("Az_eq@z == bz is DCP:", (Az_eq@z == bz).is_dcp())
-# for i in range(0,8*pieces,8):
-
-#     Qxi = Qx[i:i+8,i:i+8].reshape(8,8)
-#     Axi_eq = Ax_eq[i:i+8,i:i+8].reshape(8,8)
-#     bxi = bx[i:i+8].reshape(8,1)
-
-#     x = cp.Variable((n,1))
-#     probx = cp.Problem(cp.Minimize(cp.quad_form(x, Qxi)),  [Axi_eq @ x == bxi])
-#     # probx.solve()
-#     # coefsx[j,0:8] = x.value.reshape(n,)
-#     print("probx is DCP:", probx.is_dcp())
-#     # print("Axi_eq@x == bxi is DCP:", (Axi_eq@x == bxi).is_dcp())
-
-#     Qyi = Qy[i:i+8,i:i+8].reshape(8,8)
-#     Ayi_eq = Ay_eq[i:i+8,i:i+8].reshape(8,8)
-#     byi = by[i:i+8].reshape(8,1)
-
-#     y = cp.Variable((n,1))
-#     proby = cp.Problem(cp.Minimize(cp.quad_form(y, Qyi)), [Ayi_eq @ y == byi])
-#     print("proby is DCP:", proby.is_dcp())
-#     # print("Ayi_eq@x == byi is DCP:", (Ayi_eq@x == byi).is_dcp())
-#     # proby.solve()
-#     # coefsy[j,0:8] = y.value.reshape(n,)
-
-#     Qzi = Qz[i:i+8,i:i+8].reshape(8,8)
-#     Azi_eq = Az_eq[i:i+8,i:i+8].reshape(8,8)
-#     bzi = bz[i:i+8].reshape(8,1)
-
-#     z = cp.Variable((n,1))
-#     probz = cp.Problem(cp.Minimize(cp.quad_form(z, Qzi)), [Azi_eq @ z == bzi])
-#     print("probz is DCP:", probz.is_dcp())
-#     # print("Azi_eq@x == bzi is DCP:", (Azi_eq@x == bzi).is_dcp())
-#     # probz.solve()
-#     # coefsz[j,0:8] = z.value.reshape(n,)
-#     j += 1
-# print(coefsx)
-# print(coefsy)
-# print(coefsz)
-# print("probx is DCP:", probx.is_dcp())
-# print("Ax_eq@x == bx is DCP:", (Ax_eq@x == bx).is_dcp())
-
-# prob1.solve()
-# print("\nThe optimal value is", prob1.value)
-# print(x.value)
-# y = cp.Variable(n)
-# objective = cp.Minimize(cp.quad_form(y, Qy))
-# constraints = [Ay_eq@y == by]
-# proby = cp.Problem(objective, constraints)
-
-# n =  8 * pieces
-# z = cp.Variable(n)
-
-# objective = cp.Minimize(cp.quad_form(z, Qz))
-# constraints = [Az_eq@z == bz]
-# probz = cp.Problem(objective, constraints)
-# # The optimal objective is returned by prob.solve().
-# coefsx = probx.solve()
-# coefsy = proby.solve()
-# coefsz = probz.solve()
-
-# The optimal value for x is stored in x.value.
-# print(x.value)
-# print(y.value)
-# print(z.value)
-# # The optimal Lagrange multiplier for a constraint
-# # is stored in constraint.dual_value.
-# print(constraints[0].dual_value)
+cffsx = cp.Variable(n)
+obj   = cp.Minimize(cp.quad_form(cffsx, Qx))
+constraints = [Ax_eq @ cffsx == bx]
+problem = cp.Problem(objective=obj,constraints=constraints)
+problem.solve()
