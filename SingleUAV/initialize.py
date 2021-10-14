@@ -2,11 +2,11 @@ import numpy as np
 from rowan import from_matrix, to_matrix 
 from utils import Rx, Ry, Rz
 
-
-dt = 0.01 #time step
+postraj = np.genfromtxt('myfile.csv', delimiter=',')
+dt = postraj[0,1] - postraj[0,0] #time step
 g = 9.81 #gravitational constant [m/s^2]
 t0 = 0
-tf = 1*np.pi
+tf = postraj[0,-1]
 
 # Initialize the time t vector given:
 # Initial time: t0
@@ -15,7 +15,7 @@ tf = 1*np.pi
 samples = int((tf-t0)/dt)
 t = np.linspace(t0, tf+dt, num=samples)
 # Initialize the Pose
-initPos = np.array([[1,0,1]])
+initPos = np.array([postraj[1,0],postraj[2,0],postraj[3,0]])
 initR = np.eye(3)
 # initialize Rotation matrix about Roll-Pitch-Yaw
 angle = [0,0,0]

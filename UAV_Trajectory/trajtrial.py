@@ -3,7 +3,7 @@ import cvxpy as cp
 from scipy import linalg as la
 import numpy.polynomial as poly
 import matplotlib.pyplot as plt
-
+import math
 
 polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
@@ -11,9 +11,23 @@ np.set_printoptions(suppress=True)
 
 init_cond = np.array([1,0,0,0])
 fin_cond  = np.array([1.5,0,0,0])
-hk = 1.5
-sqrtQ = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-Q = sqrtQ.T @ sqrtQ
+hk = 2
+sqrtQ = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((8,1))
+
+C = np.zeros((8,8))
+for i in range(8):
+    if i < 4:
+        pass
+    else:
+        C[i,i] = math.factorial(i)/math.factorial(i-4)
+
+T_mat = np.zeros((8,8), dtype=float)
+for i in range(4,8):
+    for j in range(4,8):
+        T_mat[i,j] = 1.0/((i-4)+(j-4)+1) * (hk)**((i-4)+(j-4)+1)
+
+Q = np.matmul(C, np.matmul(T_mat, C))
+print(Q)
 A_eq = np.zeros((8,8))
 
 A0 = np.eye(4)
@@ -41,7 +55,8 @@ constraints = [A_eq @ coefs == b]
 problem = cp.Problem(cp.Minimize(objective),constraints)
 print("prob is DCP:", problem.is_dcp())
 print("A_eq@ coefs == b is DCP:", (constraints[0]).is_dcp())
-problem.solve()
+problem.solve(solver='OSQP',eps_dual_inf=1e-6)
+print(problem.is_qp())
 print("\nThe optimal value is", problem.value)
 print("coefs is")
 print(coefs.value)

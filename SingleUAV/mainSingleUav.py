@@ -12,31 +12,30 @@ from rowan import from_matrix, to_matrix
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d 
 import matplotlib.animation as animation
-from UavTrajectory import DesiredTrajInfinity, DesiredTrajHelix, Hover
+from UavTrajectory import _DesiredTrajInfinity, DesiredTrajInfinity, Hover
 from initialize import initState, t0, tf, dt, t
 from AnimateSingleUav import PlotandAnimate
 import time
-
+np.set_printoptions(linewidth=np.inf)
+np.set_printoptions(suppress=True)
 # Initialize UAV object with a given initState and a step time dt
 uavModel = uav.UavModel(dt, initState)
 # Given the controller gains, initialize a controller object
 k = [10,5,0.05,0.001]
 controller = controller.Controller(uavModel,kpp=k[0],kdp=k[1],kpo=k[2],kdo=k[3])
 # Logging the state data
+full_traj = DesiredTrajInfinity()
 full_state = np.zeros((1,13))
 ref_state  = np.zeros((1,13))
 traj_choice = 1
 
 for i in range(0,len(t)):
 # Generate the reference flat outputs trajectory for 3 different trajectories
-    if traj_choice == 0: RefTraj, RefTwist = DesiredTrajInfinity(t[i])
-    elif traj_choice == 1:  RefTraj, RefTwist = DesiredTrajHelix(t[i],initState[0],initState[1],initState[2])
-    else:
-        if t[i] <= 1:
-            p = [0,0,1,0]
-        else:
-            p = [0,1,1,0]    
-        RefTraj, RefTwist = Hover(p)
+    RefTraj  = np.array([full_traj[0][0][i],full_traj[0][1][i],full_traj[0][2][i],full_traj[0][3][i]])
+    RefTwist = full_traj[1][:]
+    print(RefTraj)
+    print(RefTwist)
+    # print(RefTwist)
     # Start Trajectory Tracking Algorithm    
     f_th, qref = controller.largeAngleController(RefTraj, RefTwist)
     state      = uavModel.states_evolution(f_th)

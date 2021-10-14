@@ -1,6 +1,6 @@
 import numpy as np
 
-def DesiredTrajInfinity(t):
+def _DesiredTrajInfinity(t):
     p                  = 1
     desiredFlatOutputs = np.zeros((4,))
     desiredTwist       = np.zeros((6,))
@@ -11,12 +11,12 @@ def DesiredTrajInfinity(t):
     desiredFlatOutputs[3] = 0 # np.pi * np.sin(wt)
     return desiredFlatOutputs, desiredTwist
 
-def DesiredTrajHelix(t, xinit, yinit, zinit):
-    desiredFlatOutputs = np.zeros((4,))
+def DesiredTrajInfinity():
+    postraj = np.genfromtxt('myfile.csv', delimiter=',')
+    print(len(postraj.T))
+    desiredFlatOutputs = np.zeros((4,len(postraj.T)))
     desiredTwist       = np.zeros((6,))
-    desiredFlatOutputs[0] = 1 * np.cos((t)) 
-    desiredFlatOutputs[1] = 1 * np.sin((t)) 
-    desiredFlatOutputs[2] = 1 + (t/10)
+    desiredFlatOutputs[0:3,:] = postraj[1:]
     desiredFlatOutputs[3] = 0
     return desiredFlatOutputs, desiredTwist
 

@@ -4,6 +4,7 @@ import cvxpy as cp
 from scipy import linalg as la
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d 
+import math
 polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
@@ -12,23 +13,23 @@ np.set_printoptions(suppress=True)
 
 # Problem data.
 # WayPoints for cirle trajetory
-r = 0.3
+r = 1
 height = 0.7
 w = 2 * np.pi
-T = 4 * (2 * np.pi / w)
-time = np.linspace(0,T,600,endpoint=True)
+T = 2 * (2 * np.pi/w)
+time = np.linspace(0,T,1000)
 
 data = np.empty((4,time.size))
 data[0,:]  = time
 data[1,:]  = r * np.cos(w * time)
 data[2,:]  = r * np.sin(w * time)
-data[3,:]  = 1+time/10
+data[3,:]  = height#1+time/10
 
 ## Define the number of splines
-pieces = 30
+pieces = 3
 n_waypoints = pieces + 1 #number of waypoints
 hk = time[-1]/pieces #time per piece [0,hk]
-
+print(hk,pieces,time[-1])
 ## Extract equidistant way points from the given data:
 pk   = np.zeros((3,n_waypoints))
 vk   = np.zeros((3,n_waypoints))
@@ -121,11 +122,52 @@ for axis in range(0,3):
             bz[8*i:8*(i+1)] = b
 
 # Construct the problem.
-coefsx = la.inv(Ax_eq) @ bx 
-coefsy = la.inv(Ay_eq) @ by
-coefsz = la.inv(Az_eq) @ bz
-
 n = 8 * pieces
+C = np.zeros((8,8))
+for i in range(4,8):
+        C[i,i] = math.factorial(i)/math.factorial(i-4)
+T_mat = np.zeros((8,8), dtype=float)
+for i in range(4,8):
+    for j in range(4,8):
+        T_mat[i,j] = 1.0/((i-4)+(j-4)+1) * (hk)**((i-4)+(j-4)+1)
+# Construct the Hessian Matrix Q
+Qx = np.zeros((8*pieces,8*pieces))
+Qy = np.zeros((8*pieces,8*pieces))
+Qz = np.zeros((8*pieces,8*pieces))
+
+coefsx = np.zeros((8*pieces,))
+coefsy = np.zeros((8*pieces,))
+coefsz = np.zeros((8*pieces,))
+
+for i in range(0,8*pieces,8):
+    Qx[i:i+8,i:i+8] = C @ T_mat @ C
+    Qy[i:i+8,i:i+8] = C @ T_mat @ C
+    Qz[i:i+8,i:i+8] = C @ T_mat @ C
+print(Qx)
+# for i in range(0,n,8):
+cffx,cffy,cffz = cp.Variable(n), cp.Variable(n), cp.Variable(n)
+objx   = cp.Minimize(cp.quad_form(cffx, Qx))
+constraintsx = [Ax_eq @ cffx == bx]
+problemX = cp.Problem(objective=objx,constraints=constraintsx)
+problemX.solve()
+
+objy   = cp.Minimize(cp.quad_form(cffy, Qy))
+constraintsy = [Ay_eq @ cffy == by]
+problemY = cp.Problem(objective=objy,constraints=constraintsy)
+problemY.solve()
+
+objz   = cp.Minimize(cp.quad_form(cffz, Qz))
+constraintsz = [Az_eq @ cffz == bz]
+problemZ = cp.Problem(objective=objz,constraints=constraintsz)
+problemZ.solve()
+
+coefsx=cffx.value
+coefsy=cffy.value
+coefsz=cffz.value
+print(cffy.value)
+if cffy.value.all() == None:
+    print('a7a')
+
 postraj  = np.zeros((4,step*pieces))
 veltraj  = np.zeros((4,step*pieces))
 acctraj  = np.zeros((4,step*pieces))
@@ -153,36 +195,14 @@ for i in range(0,n,8):
     jerktraj[1:,stepInd:stepInd+step] = np.array([jxpoly(time_hk),jypoly(time_hk),jzpoly(time_hk)]).reshape(3,len(time_hk))
 
     stepInd += step
-
+np.savetxt('myfile.csv', postraj, delimiter=',')
 fig = plt.figure(figsize=(10,10))
 ax  = fig.add_subplot(autoscale_on=True,projection="3d")
-trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=1,label="7th order Spline Trajectory")
-refTraj = ax.plot(data[1,:],data[2,:],data[3,:],'r',lw=1,label='Reference Trajectory')
+trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=3,label="7th order Spline Trajectory")
+refTraj = ax.plot(data[1,:],data[2,:],data[3,:],'-.r',lw=1,label='Reference Trajectory')
 wayp = ax.plot(pk[0,:],pk[1,:],pk[2,:],'*b',lw=2,label='waypoints')
 ax.legend()
 plt.grid()
 plt.show()
 
 
-# Construct the Hessian Matrix Q
-Qx = np.eye(8*pieces)
-Qy = np.eye(8*pieces)
-Qz = np.eye(8*pieces)
-for i in range(0,8*pieces,8):
-    sqrtQx = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-    Qx[i:i+8,i:i+8] = sqrtQx.T @ sqrtQx
-    sqrtQy = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-    Qy[i:i+8,i:i+8] = sqrtQy.T @ sqrtQy
-    sqrtQz = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
-    Qz[i:i+8,i:i+8] = sqrtQz.T @ sqrtQz
-
-for i in range(0,n,8):
-    cffsx = cp.Variable(4)
-    Q_i = Qx[i+4:i+8,i+4:i+8]
-    print(la.det(Q_i))
-    A_i = Ax_eq[i+4:i+8,i+4:i+8]
-    b_i = bx[i+4:i+8]
-    obj   = cp.Minimize(cp.quad_form(cffsx, Q_i))
-    constraints = [A_i @ cffsx == b_i]
-    problem = cp.Problem(objective=obj,constraints=constraints)
-    problem.solve()
