@@ -14,7 +14,6 @@ fin_cond  = np.array([1.5,0,0,0])
 hk = 1.5
 sqrtQ = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
 Q = sqrtQ.T @ sqrtQ
-
 A_eq = np.zeros((8,8))
 
 A0 = np.eye(4)
