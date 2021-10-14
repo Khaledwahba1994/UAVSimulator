@@ -164,7 +164,7 @@ plt.grid()
 plt.show()
 
 
-## Construct the Hessian Matrix Q
+# Construct the Hessian Matrix Q
 Qx = np.eye(8*pieces)
 Qy = np.eye(8*pieces)
 Qz = np.eye(8*pieces)
@@ -176,8 +176,13 @@ for i in range(0,8*pieces,8):
     sqrtQz = np.array([0, 0, 0, 0, 24, 120*hk, 360*hk**2, 840*hk**3]).reshape((1,8))
     Qz[i:i+8,i:i+8] = sqrtQz.T @ sqrtQz
 
-cffsx = cp.Variable(n)
-obj   = cp.Minimize(cp.quad_form(cffsx, Qx))
-constraints = [Ax_eq @ cffsx == bx]
-problem = cp.Problem(objective=obj,constraints=constraints)
-problem.solve()
+for i in range(0,n,8):
+    cffsx = cp.Variable(4)
+    Q_i = Qx[i+4:i+8,i+4:i+8]
+    print(la.det(Q_i))
+    A_i = Ax_eq[i+4:i+8,i+4:i+8]
+    b_i = bx[i+4:i+8]
+    obj   = cp.Minimize(cp.quad_form(cffsx, Q_i))
+    constraints = [A_i @ cffsx == b_i]
+    problem = cp.Problem(objective=obj,constraints=constraints)
+    problem.solve()
