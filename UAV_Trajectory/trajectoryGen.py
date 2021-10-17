@@ -9,24 +9,36 @@ polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
 
-#
-
 # Problem data.
-# WayPoints for cirle trajetory
-r = 1
-height = 0.7
-w = 2 * np.pi
-T = 2 * (2 * np.pi/w)
-time = np.linspace(0,T,1000)
+type_traj = 'inf'
+if type_traj in 'helix':
+    ## WayPoints for cirle trajectory
+    r = 1
+    height = 0.7
+    w = 0.2 * np.pi
+    T =  2*(2 * np.pi/w)
+    time = np.linspace(0,T,1000)
+    data = np.empty((4,time.size))
+    data[0,:]  = time
+    data[1,:]  = r * np.cos(w * time)
+    data[2,:]  = r * np.sin(w * time)
+    data[3,:]  = 1+time/10
+    pieces = 30
+else:
+    ## Waypoints for infinity trajectory
+    height = 0.7
+    w = 0.2 * np.pi
+    T = (2*np.pi)/w
+    time = np.linspace(0,T,1000)
+    data = np.empty((4,time.size))
+    data[0,:]  = time
+    data[1,:]  =  np.sin(w*time)
+    data[2,:]  =  np.sin(2*w*time)
+    data[3,:]  =  height
+    pieces = 25
 
-data = np.empty((4,time.size))
-data[0,:]  = time
-data[1,:]  = r * np.cos(w * time)
-data[2,:]  = r * np.sin(w * time)
-data[3,:]  = height#1+time/10
-
+################################################################################################################################################
 ## Define the number of splines
-pieces = 3
 n_waypoints = pieces + 1 #number of waypoints
 hk = time[-1]/pieces #time per piece [0,hk]
 print(hk,pieces,time[-1])
@@ -42,7 +54,7 @@ for i in range(0,pieces):
     pk[:,i] = data[1:,index]
 pk[:,-1] = data[1:,-1]
 
-
+########################################################################################################################################################
 ## If mid conditions are not given:
 ## Enforce Continuity By finding the mid conditions for vel_k, acc_k, jerk_k
 ## through equating coefficients c4,k+1 = [.].T*[c4k,..,c7k] from the span condition
@@ -88,7 +100,7 @@ for axis in range(0,3):
         jk[axis,ind] = mid_conditions[midIndex+2]
         ind += 1
 
-
+########################################################################################################################################################
 ## Construct the Equality Constraints Aeq matrix and beq for x-y-z axes
 Ax_eq = np.zeros((8*pieces,8*pieces))
 Ay_eq = np.zeros((8*pieces,8*pieces))
@@ -121,8 +133,7 @@ for axis in range(0,3):
             Az_eq[8*i:8*(i+1),8*i:8*(i+1)] = la.block_diag(A0,Hk)
             bz[8*i:8*(i+1)] = b
 
-# Construct the problem.
-n = 8 * pieces
+
 C = np.zeros((8,8))
 for i in range(4,8):
         C[i,i] = math.factorial(i)/math.factorial(i-4)
@@ -135,39 +146,38 @@ Qx = np.zeros((8*pieces,8*pieces))
 Qy = np.zeros((8*pieces,8*pieces))
 Qz = np.zeros((8*pieces,8*pieces))
 
-coefsx = np.zeros((8*pieces,))
-coefsy = np.zeros((8*pieces,))
-coefsz = np.zeros((8*pieces,))
-
 for i in range(0,8*pieces,8):
     Qx[i:i+8,i:i+8] = C @ T_mat @ C
     Qy[i:i+8,i:i+8] = C @ T_mat @ C
     Qz[i:i+8,i:i+8] = C @ T_mat @ C
-print(Qx)
-# for i in range(0,n,8):
+
+########################################################################################################################################################
+# Construct the problem.
+n = 8 * pieces
 cffx,cffy,cffz = cp.Variable(n), cp.Variable(n), cp.Variable(n)
 objx   = cp.Minimize(cp.quad_form(cffx, Qx))
 constraintsx = [Ax_eq @ cffx == bx]
 problemX = cp.Problem(objective=objx,constraints=constraintsx)
-problemX.solve()
+problemX.solve(solver=cp.OSQP,max_iter=1000)
 
 objy   = cp.Minimize(cp.quad_form(cffy, Qy))
 constraintsy = [Ay_eq @ cffy == by]
 problemY = cp.Problem(objective=objy,constraints=constraintsy)
-problemY.solve()
+problemY.solve(solver=cp.OSQP,max_iter=1000)
 
 objz   = cp.Minimize(cp.quad_form(cffz, Qz))
 constraintsz = [Az_eq @ cffz == bz]
 problemZ = cp.Problem(objective=objz,constraints=constraintsz)
-problemZ.solve()
+problemZ.solve(solver=cp.OSQP,max_iter=1000)
 
+coefsx = np.zeros((8*pieces,))
+coefsy = np.zeros((8*pieces,))
+coefsz = np.zeros((8*pieces,))
 coefsx=cffx.value
 coefsy=cffy.value
 coefsz=cffz.value
-print(cffy.value)
-if cffy.value.all() == None:
-    print('a7a')
-
+########################################################################################################################################################
+## Plot the trajectory
 postraj  = np.zeros((4,step*pieces))
 veltraj  = np.zeros((4,step*pieces))
 acctraj  = np.zeros((4,step*pieces))
