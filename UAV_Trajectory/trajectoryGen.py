@@ -177,6 +177,9 @@ coefsx=cffx.value
 coefsy=cffy.value
 coefsz=cffz.value
 ########################################################################################################################################################
+
+
+########################################################################################################################################################
 ## Plot the trajectory
 postraj  = np.zeros((4,step*pieces))
 veltraj  = np.zeros((4,step*pieces))
@@ -208,9 +211,9 @@ for i in range(0,n,8):
 np.savetxt('myfile.csv', postraj, delimiter=',')
 fig = plt.figure(figsize=(10,10))
 ax  = fig.add_subplot(autoscale_on=True,projection="3d")
-trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=3,label="7th order Spline Trajectory")
+trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=2,label="7th order Spline Trajectory")
 refTraj = ax.plot(data[1,:],data[2,:],data[3,:],'-.r',lw=1,label='Reference Trajectory')
-wayp = ax.plot(pk[0,:],pk[1,:],pk[2,:],'*b',lw=2,label='waypoints')
+wayp = ax.plot(pk[0,:],pk[1,:],pk[2,:],'*b',lw=5,label='waypoints')
 ax.legend()
 plt.grid()
 plt.show()
