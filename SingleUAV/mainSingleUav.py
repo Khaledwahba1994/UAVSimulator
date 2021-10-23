@@ -49,7 +49,7 @@ for i in range(0,len(t)):
 
 full_state = np.delete(full_state, 0, 0)
 ref_state  = np.delete(ref_state, 0, 0)
-sample     = 10
+sample     = 50
 
 fig     = plt.figure(figsize=(10,10))
 ax      = fig.add_subplot(autoscale_on=True,projection="3d")
@@ -57,11 +57,11 @@ animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::
 
 animateAndSave = True
 if animateAndSave:
-    videoname  = path+'/Videos/CircularTrajectoryDiffgains.mp4' 
+    videoname  = path+'/Videos/infinitytraj.mp4' 
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
-    show       = True
-    save       = False
+    show       = False
+    save       = True
     if show:
         print("Showing animation.")
     if save:
