@@ -33,9 +33,6 @@ for i in range(0,len(t)):
 # Generate the reference flat outputs trajectory for 3 different trajectories
     RefTraj  = np.array([full_traj[0][0][i],full_traj[0][1][i],full_traj[0][2][i],full_traj[0][3][i]])
     RefTwist = full_traj[1][:]
-    print(RefTraj)
-    print(RefTwist)
-    # print(RefTwist)
     # Start Trajectory Tracking Algorithm    
     f_th, qref = controller.largeAngleController(RefTraj, RefTwist)
     state      = uavModel.states_evolution(f_th)
@@ -49,7 +46,7 @@ for i in range(0,len(t)):
 
 full_state = np.delete(full_state, 0, 0)
 ref_state  = np.delete(ref_state, 0, 0)
-sample     = 50
+sample     = 10
 
 fig     = plt.figure(figsize=(10,10))
 ax      = fig.add_subplot(autoscale_on=True,projection="3d")
@@ -60,8 +57,8 @@ if animateAndSave:
     videoname  = path+'/Videos/infinitytraj.mp4' 
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
-    show       = False
-    save       = True
+    show       = True
+    save       = False
     if show:
         print("Showing animation.")
     if save:
