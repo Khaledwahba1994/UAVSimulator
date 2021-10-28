@@ -13,7 +13,7 @@ To test the simulator for a single UAV, open a terminal inside the UAVsimulator 
 python3 SingleUAV/mainSingleUav.py 
 ```
 To save a video or gif, change the boolean _save_ to *True* (The default is False), and choose the name and extension of the video in *videoname* string variable.
-![Markdown Logo](Videos/CircularTraj.gif)
+![Markdown Logo](Videos/CircularTrajectoryDiffgains.gif)
 ___
 ___
 # MultiUAVs Folder:
