@@ -1,5 +1,4 @@
 *.pyc
 ___pycache__/
 *.DS_Store
-*.csv
 trajinf.py
