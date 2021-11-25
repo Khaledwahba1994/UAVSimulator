@@ -21,7 +21,7 @@ np.set_printoptions(suppress=True)
 # Initialize UAV object with a given initState and a step time dt
 uavModel = uav.UavModel(dt, initState)
 # Given the controller gains, initialize a controller object
-k = [10,5,0.05,0.001]
+k = [10,5,0.05,0.002]
 controller = controller.Controller(uavModel,kpp=k[0],kdp=k[1],kpo=k[2],kdo=k[3])
 # Logging the state data
 full_traj = DesiredTrajInfinity()
