@@ -1,8 +1,10 @@
+import os
+import sys 
 import numpy as np
 from rowan import from_matrix, to_matrix 
 from utils import Rx, Ry, Rz
-
-postraj = np.genfromtxt('myfile.csv', delimiter=',')
+filename = "trajfile.csv"
+postraj = np.genfromtxt(filename, delimiter=',')
 dt = postraj[0,1] - postraj[0,0] #time step
 g = 9.81 #gravitational constant [m/s^2]
 t0 = 0

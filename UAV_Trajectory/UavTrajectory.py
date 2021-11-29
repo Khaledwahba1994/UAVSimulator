@@ -12,8 +12,7 @@ def _DesiredTrajInfinity(t):
     return desiredFlatOutputs, desiredTwist
 
 def DesiredTrajInfinity():
-    postraj = np.genfromtxt('myfile.csv', delimiter=',')
-    print(len(postraj.T))
+    postraj = np.genfromtxt('trajfile.csv', delimiter=',')
     desiredFlatOutputs = np.zeros((4,len(postraj.T)))
     desiredTwist       = np.zeros((6,))
     desiredFlatOutputs[0:3,:] = postraj[1:]
