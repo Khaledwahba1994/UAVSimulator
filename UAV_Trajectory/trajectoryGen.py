@@ -5,6 +5,9 @@ from scipy import linalg as la
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d 
 import math
+from pathlib import Path
+import os
+
 polynomial = poly.Polynomial
 np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
@@ -208,7 +211,14 @@ for i in range(0,n,8):
     jerktraj[1:,stepInd:stepInd+step] = np.array([jxpoly(time_hk),jypoly(time_hk),jzpoly(time_hk)]).reshape(3,len(time_hk))
 
     stepInd += step
-np.savetxt('myfile.csv', postraj, delimiter=',')
+
+
+fpath = Path(os.getcwd())
+filename = '/trajectoriesCSV/infinity8.csv'
+fpathParent = str(fpath.parent) + filename
+
+print(fpathParent)
+np.savetxt(fpathParent, postraj, delimiter=',')
 fig = plt.figure(figsize=(10,10))
 ax  = fig.add_subplot(autoscale_on=True,projection="3d")
 trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=2,label="7th order Spline Trajectory")

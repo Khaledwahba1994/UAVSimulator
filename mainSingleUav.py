@@ -5,6 +5,7 @@ sys.path.insert(0, path)
 sys.path.insert(0, path+'/ControllerUAV/')
 sys.path.insert(0, path+'/Utilities/')
 sys.path.insert(0, path+'/UAV_Trajectory/')
+sys.path.insert(0, path+'/SingleUAV/')
 
 import uav
 import controller
