@@ -3,8 +3,14 @@ import sys
 import numpy as np
 from rowan import from_matrix, to_matrix 
 from utils import Rx, Ry, Rz
-filename = "trajfile.csv"
-postraj = np.genfromtxt(filename, delimiter=',')
+from pathlib import Path
+import os
+
+filename = "UAVSimulator/trajectoriesCSV/infinity8.csv"
+fpath = Path(os.getcwd())
+filename = '/trajectoriesCSV/infinity8.csv'
+fpathParent = str(fpath.parent) + filename
+postraj = np.genfromtxt(fpathParent, delimiter=',')
 dt = postraj[0,1] - postraj[0,0] #time step
 g = 9.81 #gravitational constant [m/s^2]
 t0 = 0

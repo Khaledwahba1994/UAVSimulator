@@ -13,7 +13,7 @@ np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
 
 # Problem data.
-type_traj = 'inf'
+type_traj = 'helix'
 if type_traj in 'helix':
     ## WayPoints for cirle trajectory
     r = 1
@@ -26,7 +26,7 @@ if type_traj in 'helix':
     data[1,:]  = r * np.cos(w * time)
     data[2,:]  = r * np.sin(w * time)
     data[3,:]  = 1+time/10
-    pieces = 30
+    pieces = 60
 else:
     ## Waypoints for infinity trajectory
     height = 0.7
@@ -50,12 +50,53 @@ pk   = np.zeros((3,n_waypoints))
 vk   = np.zeros((3,n_waypoints))
 ak   = np.zeros((3,n_waypoints))
 jk   = np.zeros((3,n_waypoints))
-step = round((len(data.T))/pieces)
 
-for i in range(0,pieces):
-    index  = step*(i)
-    pk[:,i] = data[1:,index]
-pk[:,-1] = data[1:,-1]
+# if pieces % 2 == 0:
+#     step = round((len(data.T)/pieces))
+#     print(step)
+# else:
+#     step = int((len(data.T)/pieces))
+
+
+if len(data.T)%pieces == 0:
+    step = round(len(data.T)/pieces)
+    for i in range(0,pieces):
+      index  = step*(i)  
+      pk[:,i] = data[1:,index]
+    pk[:,-1] = data[1:,-1] 
+else:
+    # p_woutRem =   (len(data.T)//pieces) #pieces without remainder
+    # leftPieces   =  (len(data.T)%pieces)
+    # print('pieces without remainder: ', p_woutRem)
+    # print('left Pieces: ', leftPieces)
+    step  = int(len(data.T)/pieces)
+    # print('step',step)
+
+    for i in range(0,pieces):
+        index  = step*(i)
+        if index <= len(data.T):
+            pk[:,i] = data[1:,index]
+    print('left of data: ', len(data.T) - index)
+    pk[:,-1] = data[1:,-1] 
+
+
+    # print(index)
+    # step4leftpieces = int((len(data.T)-index)/leftPieces)
+    # newpieceLength  
+    # print('\n')
+    # for ind in range(0, leftPieces):
+    #     # print((ind * step4leftpieces))
+    #     print(rem+ind)
+    #     index  += (ind * step4leftpieces)
+    #     print(index)
+        # pk[:,rem+ind] = data[1:,index]
+    
+
+# print(step)   
+
+
+
+
 
 ########################################################################################################################################################
 ## If mid conditions are not given:
@@ -158,30 +199,29 @@ for i in range(0,8*pieces,8):
 # Construct the problem.
 n = 8 * pieces
 cffx,cffy,cffz = cp.Variable(n), cp.Variable(n), cp.Variable(n)
+
 objx   = cp.Minimize(cp.quad_form(cffx, Qx))
 constraintsx = [Ax_eq @ cffx == bx]
 problemX = cp.Problem(objective=objx,constraints=constraintsx)
-problemX.solve(solver=cp.OSQP,max_iter=1000)
+problemX.solve(solver=cp.CVXOPT)
+print('probx value is: ',problemX.value)
 
 objy   = cp.Minimize(cp.quad_form(cffy, Qy))
 constraintsy = [Ay_eq @ cffy == by]
 problemY = cp.Problem(objective=objy,constraints=constraintsy)
-problemY.solve(solver=cp.OSQP,max_iter=1000)
+problemY.solve(solver=cp.CVXOPT)
+print('proby value is: ',problemY.value)
 
 objz   = cp.Minimize(cp.quad_form(cffz, Qz))
 constraintsz = [Az_eq @ cffz == bz]
 problemZ = cp.Problem(objective=objz,constraints=constraintsz)
-problemZ.solve(solver=cp.OSQP,max_iter=1000)
+problemZ.solve(solver=cp.CVXOPT)
+print('probz value is: ',problemZ.value)
 
-coefsx = np.zeros((8*pieces,))
-coefsy = np.zeros((8*pieces,))
-coefsz = np.zeros((8*pieces,))
 coefsx=cffx.value
 coefsy=cffy.value
 coefsz=cffz.value
 ########################################################################################################################################################
-
-
 ########################################################################################################################################################
 ## Plot the trajectory
 postraj  = np.zeros((4,step*pieces))
