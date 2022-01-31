@@ -58,11 +58,11 @@ animate = PlotandAnimate(fig, ax, uavModel, full_state[::sample,:], ref_state[::
 
 animateAndSave = True
 if animateAndSave:
-    videoname  = path+'/Videos/infinitytraj.mp4' 
+    videoname  = path+'/Videos/helixtraj_trial.mp4' 
     t_sampled  = t[::sample]
     dt_sampled = t_sampled[1] - t_sampled[0]
-    show       = True
-    save       = False
+    show       = False
+    save       = True
     if show:
         print("Showing animation.")
     if save:

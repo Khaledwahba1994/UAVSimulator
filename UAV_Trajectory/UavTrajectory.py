@@ -1,5 +1,6 @@
 import numpy as np
-
+from pathlib import Path
+import os
 def _DesiredTrajInfinity(t):
     p                  = 1
     desiredFlatOutputs = np.zeros((4,))
@@ -12,7 +13,10 @@ def _DesiredTrajInfinity(t):
     return desiredFlatOutputs, desiredTwist
 
 def DesiredTrajInfinity():
-    postraj = np.genfromtxt('trajfile.csv', delimiter=',')
+    filename = "/UAVSimulator/trajectoriesCSV/infinity8.csv"
+    fpath = Path(os.getcwd())
+    fpathParent = str(fpath.parent) + filename
+    postraj = np.genfromtxt(fpathParent, delimiter=',')
     desiredFlatOutputs = np.zeros((4,len(postraj.T)))
     desiredTwist       = np.zeros((6,))
     desiredFlatOutputs[0:3,:] = postraj[1:]

@@ -26,7 +26,7 @@ if type_traj in 'helix':
     data[1,:]  = r * np.cos(w * time)
     data[2,:]  = r * np.sin(w * time)
     data[3,:]  = 1+time/10
-    pieces = 60
+    pieces = 50
 else:
     ## Waypoints for infinity trajectory
     height = 0.7
