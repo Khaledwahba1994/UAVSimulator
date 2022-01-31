@@ -4,3 +4,4 @@ ___pycache__/
 *.DS_Store
 trajinf.py
 trajtrial.py
+.vscode
