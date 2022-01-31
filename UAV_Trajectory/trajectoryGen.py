@@ -254,6 +254,7 @@ for i in range(0,n,8):
 
 
 fpath = Path(os.getcwd())
+print(fpath)
 filename = '/trajectoriesCSV/infinity8.csv'
 fpathParent = str(fpath.parent) + filename
 
