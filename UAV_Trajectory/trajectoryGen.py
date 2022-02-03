@@ -13,33 +13,44 @@ np.set_printoptions(linewidth=np.inf)
 np.set_printoptions(suppress=True)
 
 # Problem data.
-type_traj = 'helix'
+type_traj = 'else'
 if type_traj in 'helix':
     ## WayPoints for cirle trajectory
     r = 1
     height = 0.7
     w = 0.2 * np.pi
     T =  2*(2 * np.pi/w)
-    time = np.linspace(0,T,1000)
+    time = np.arange(0,T,1e-3)
+    print('dt = ',time[1]-time[0])
     data = np.empty((4,time.size))
     data[0,:]  = time
     data[1,:]  = r * np.cos(w * time)
     data[2,:]  = r * np.sin(w * time)
     data[3,:]  = 1+time/10
     pieces = 50
-else:
+elif(type_traj in 'inf'):
     ## Waypoints for infinity trajectory
     height = 0.7
     w = 0.2 * np.pi
     T = (2*np.pi)/w
-    time = np.linspace(0,T,1000)
+    time = np.arange(0,T,1e-3)
+    print('dt = ',time[1]-time[0])
     data = np.empty((4,time.size))
     data[0,:]  = time
     data[1,:]  =  np.sin(w*time)
     data[2,:]  =  np.sin(2*w*time)
     data[3,:]  =  height
     pieces = 25
-
+else:
+    x0 = 0
+    xf = 1
+    T = 2
+    time = np.arange(0,T,1e-3)
+    data = np.empty((4,time.size))
+    dt = 1e-3
+    data[0,:] = time
+    data[1,:] = x0 + ((time/time[-1])*(xf - x0))
+    pieces = 5 
 ################################################################################################################################################
 ## Define the number of splines
 n_waypoints = pieces + 1 #number of waypoints
@@ -228,13 +239,16 @@ postraj  = np.zeros((4,step*pieces))
 veltraj  = np.zeros((4,step*pieces))
 acctraj  = np.zeros((4,step*pieces))
 jerktraj = np.zeros((4,step*pieces))
+fulltraj = np.zeros((12,step*pieces))
 
 postraj[0,:]  = time[:(step*pieces)]
 veltraj[0,:]  = time[:(step*pieces)]
 acctraj[0,:]  = time[:(step*pieces)]
 jerktraj[0,:] = time[:(step*pieces)]
-
+fulltraj[0,:] = time[:(step*pieces)]
 stepInd = 0
+
+traj = np.zeros((12,step*pieces))
 for i in range(0,n,8):
     xpoly = polynomial(np.array([coefsx[i:i+8]]).reshape(8,))
     ypoly = polynomial(np.array([coefsy[i:i+8]]).reshape(8,))
@@ -249,17 +263,19 @@ for i in range(0,n,8):
     veltraj[1:,stepInd:stepInd+step]  = np.array([vxpoly(time_hk),vypoly(time_hk),vzpoly(time_hk)]).reshape(3,len(time_hk))
     acctraj[1:,stepInd:stepInd+step]  = np.array([axpoly(time_hk),aypoly(time_hk),azpoly(time_hk)]).reshape(3,len(time_hk))
     jerktraj[1:,stepInd:stepInd+step] = np.array([jxpoly(time_hk),jypoly(time_hk),jzpoly(time_hk)]).reshape(3,len(time_hk))
-
+    fulltraj[1:4,stepInd:stepInd+step]  = np.array([xpoly(time_hk),ypoly(time_hk),zpoly(time_hk)]).reshape(3,len(time_hk))
+    fulltraj[4:7,stepInd:stepInd+step]  = np.array([vxpoly(time_hk),vypoly(time_hk),vzpoly(time_hk)]).reshape(3,len(time_hk))
+    fulltraj[7:10,stepInd:stepInd+step] = np.array([axpoly(time_hk),aypoly(time_hk),azpoly(time_hk)]).reshape(3,len(time_hk))
     stepInd += step
 
 
 fpath = Path(os.getcwd())
 print(fpath)
-filename = '/trajectoriesCSV/infinity8.csv'
+filename = '/trajectoriesCSV/linear.csv'
 fpathParent = str(fpath.parent) + filename
 
 print(fpathParent)
-np.savetxt(fpathParent, postraj, delimiter=',')
+np.savetxt(fpathParent, fulltraj, delimiter=',')
 fig = plt.figure(figsize=(10,10))
 ax  = fig.add_subplot(autoscale_on=True,projection="3d")
 trajspline = ax.plot(postraj[1,:],postraj[2,:],postraj[3,:],'k',lw=2,label="7th order Spline Trajectory")
